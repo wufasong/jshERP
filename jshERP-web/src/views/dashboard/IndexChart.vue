@@ -70,7 +70,7 @@
         </a-card>
       </a-col>
     </a-row>
-    <a-row :gutter="24">
+    <a-row :gutter="24" style="display:none">
       <a-col :sm="24" :md="24" :xl="24" :style="{ paddingRight: '0px',marginBottom: '6px' }">
         <a-card :bordered="false" :body-style="{padding: '5'}" data-step="10" data-title="服务和版权"
                 data-intro="展示服务到期时间（快到期时会出现续费链接，请注意及时续费）、

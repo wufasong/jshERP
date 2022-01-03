@@ -7,7 +7,7 @@
             <a-col>
               <a href="/">
                 <span class="title">{{systemTitle}}</span>
-                <small class="desc">V3.0</small>
+                <small class="desc" style="display:none">V3.0</small>
               </a>
             </a-col>
           </a-row>

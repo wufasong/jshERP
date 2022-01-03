@@ -59,12 +59,12 @@
           class="register-button"
           :loading="registerBtn"
           @click.stop.prevent="handleSubmit"
-          :disabled="registerBtn">注册租户
+          :disabled="registerBtn">注册用户
         </a-button>
-        <router-link class="login" :to="{ name: 'login' }">使用已有租户登录</router-link>
+        <router-link class="login" :to="{ name: 'login' }">使用已有账号登录</router-link>
       </a-form-item>
 
-      <div class="login-copyright">
+      <div class="login-copyright" style="display:none">
         <a-row>
           <a-col>
             © 2015-2030 {{systemTitle}} - Powered By
@@ -239,7 +239,7 @@
                 if(res.code === 200){
                   this.$notification.success({
                     message: '提示',
-                    description: "注册成功，请使用该租户登录！",
+                    description: "注册成功，请使用该账号登录！",
                     duration: 5
                   });
                   let that = this;
