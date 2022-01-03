@@ -17,7 +17,7 @@
           <head-info :content="statistics.todaySale"></head-info>
         </chart-card>
       </a-col>
-      <a-col :sm="24" :md="12" :xl="4" :style="{ paddingRight: '0px',marginBottom: '12px' }">
+      <a-col :sm="24" :md="12" :xl="4" :style="{ paddingRight: '0px',marginBottom: '12px',display:'none' }">
         <chart-card :loading="loading" title="今日累计零售" data-step="3" data-title="今日累计零售" data-intro="统计今日零售单据的总金额">
           <a-tooltip title="统计今日零售单据的总金额" slot="action">
             <a-icon type="info-circle-o" />
@@ -41,7 +41,7 @@
           <head-info :content="statistics.monthSale"></head-info>
         </chart-card>
       </a-col>
-      <a-col :sm="24" :md="12" :xl="4" :style="{ paddingRight: '0px',marginBottom: '12px' }">
+      <a-col :sm="24" :md="12" :xl="4" :style="{ paddingRight: '0px',marginBottom: '12px', display:'none' }">
         <chart-card :loading="loading" title="本月累计零售" data-step="6" data-title="本月累计零售" data-intro="统计本月零售单据的总金额">
           <a-tooltip placement="left" title="统计本月零售单据的总金额" slot="action">
             <a-icon type="info-circle-o" />
@@ -63,7 +63,7 @@
           <bar title="销售统计" :height="barHeight" :yaxisText="yaxisText" :dataSource="salePriceData"/>
         </a-card>
       </a-col>
-      <a-col :sm="24" :md="12" :xl="8" :style="{ paddingRight: '0px',marginBottom: '12px' }">
+      <a-col :sm="24" :md="12" :xl="8" :style="{ paddingRight: '0px',marginBottom: '12px' }"  style="display:none">
         <a-card :loading="loading" :bordered="false" :body-style="{paddingRight: '5'}" data-step="9" data-title="零售统计"
                 data-intro="统计往前6个月每月零售的总金额">
           <bar title="零售统计" :height="barHeight" :yaxisText="yaxisText" :dataSource="retailPriceData"/>
