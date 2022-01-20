@@ -23,7 +23,7 @@
                   <a-input placeholder="请输入联系电话查询" v-model="queryParam.phonenum"></a-input>
                 </a-form-item>
               </a-col>
-              <span style="float: left;overflow: hidden;" class="table-page-search-submitButtons">
+              <span style="float: left; overflow: hidden" class="table-page-search-submitButtons">
                 <a-col :md="6" :sm="24">
                   <a-button type="primary" @click="searchQuery">查询</a-button>
                   <a-button style="margin-left: 8px" @click="searchReset">重置</a-button>
@@ -33,12 +33,22 @@
           </a-form>
         </div>
         <!-- 操作按钮区域 -->
-        <div class="table-operator"  style="margin-top: 5px">
-          <a-button v-if="btnEnableList.indexOf(1)>-1" @click="handleAdd" type="primary" icon="plus">新增</a-button>
-          <a-upload v-if="btnEnableList.indexOf(1)>-1" name="file" :showUploadList="false" :multiple="false" :headers="tokenHeader" :action="importExcelUrl" @change="handleImportExcel">
+        <div class="table-operator" style="margin-top: 5px">
+          <a-button v-if="btnEnableList.indexOf(1) > -1" @click="handleAdd" type="primary" icon="plus">新增</a-button>
+          <a-upload
+            v-if="btnEnableList.indexOf(1) > -1"
+            name="file"
+            :showUploadList="false"
+            :multiple="false"
+            :headers="tokenHeader"
+            :action="importExcelUrl"
+            @change="handleImportExcel"
+          >
             <a-popover title="导入注意点">
               <template slot="content">
-                <p><a target="_blank" href="/doc/customer_template.xls"><b>客户Excel模板下载</b></a></p>
+                <p>
+                  <a target="_blank" href="/doc/customer_template.xls"><b>客户Excel模板下载</b></a>
+                </p>
               </template>
               <a-button type="primary" icon="import">导入</a-button>
             </a-popover>
@@ -46,13 +56,17 @@
           <a-button type="primary" icon="download" @click="handleExportXls('客户信息')">导出</a-button>
           <a-dropdown>
             <a-menu slot="overlay">
-              <a-menu-item key="1" v-if="btnEnableList.indexOf(1)>-1" @click="batchDel"><a-icon type="delete"/>删除</a-menu-item>
-              <a-menu-item key="2" v-if="btnEnableList.indexOf(1)>-1" @click="batchSetStatus(true)"><a-icon type="check-square"/>启用</a-menu-item>
-              <a-menu-item key="3" v-if="btnEnableList.indexOf(1)>-1" @click="batchSetStatus(false)"><a-icon type="close-square"/>禁用</a-menu-item>
+              <a-menu-item key="1" v-if="btnEnableList.indexOf(1) > -1" @click="batchDel"
+                ><a-icon type="delete" />删除</a-menu-item
+              >
+              <a-menu-item key="2" v-if="btnEnableList.indexOf(1) > -1" @click="batchSetStatus(true)"
+                ><a-icon type="check-square" />启用</a-menu-item
+              >
+              <a-menu-item key="3" v-if="btnEnableList.indexOf(1) > -1" @click="batchSetStatus(false)"
+                ><a-icon type="close-square" />禁用</a-menu-item
+              >
             </a-menu>
-            <a-button>
-              批量操作 <a-icon type="down" />
-            </a-button>
+            <a-button> 批量操作 <a-icon type="down" /> </a-button>
           </a-dropdown>
         </div>
         <!-- table区域-begin -->
@@ -67,12 +81,17 @@
             :pagination="ipagination"
             :scroll="scroll"
             :loading="loading"
-            :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
-            @change="handleTableChange">
+            :rowSelection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
+            @change="handleTableChange"
+          >
             <span slot="action" slot-scope="text, record">
               <a @click="handleEdit(record)">编辑</a>
-              <a-divider v-if="btnEnableList.indexOf(1)>-1" type="vertical" />
-              <a-popconfirm v-if="btnEnableList.indexOf(1)>-1" title="确定删除吗?" @confirm="() => handleDelete(record.id)">
+              <a-divider v-if="btnEnableList.indexOf(1) > -1" type="vertical" />
+              <a-popconfirm
+                v-if="btnEnableList.indexOf(1) > -1"
+                title="确定删除吗?"
+                @confirm="() => handleDelete(record.id)"
+              >
                 <a>删除</a>
               </a-popconfirm>
             </span>
@@ -92,100 +111,105 @@
 </template>
 <!-- BY cao_yu_li -->
 <script>
-  import CustomerModal from './modules/CustomerModal'
-  import { JeecgListMixin } from '@/mixins/JeecgListMixin'
-  import { openDownloadDialog, sheet2blob} from "@/utils/util"
-  import JDate from '@/components/jeecg/JDate'
-  export default {
-    name: "CustomerList",
-    mixins:[JeecgListMixin],
-    components: {
-      CustomerModal,
-      JDate
-    },
-    data () {
-      return {
-        labelCol: {
-          span: 5
-        },
-        wrapperCol: {
-          span: 18,
-          offset: 1
-        },
-        // 查询条件
-        queryParam: {
-          supplier:'',
-          type:'客户',
-          telephone:'',
-          phonenum:''
-        },
-        ipagination:{
-          pageSizeOptions: ['10', '20', '30', '100', '200']
-        },
-        // 表头
-        columns: [
-          {
-            title: '#',
-            dataIndex: '',
-            key:'rowIndex',
-            width:60,
-            align:"center",
-            customRender:function (t,r,index) {
-              return parseInt(index)+1;
-            }
-          },
-          { title: '名称',dataIndex: 'supplier',width:150},
-          { title: '联系人', dataIndex: 'contacts',width:70,align:"center"},
-          { title: '手机号码', dataIndex: 'telephone',width:100,align:"center"},
-          { title: '联系电话', dataIndex: 'phoneNum',width:100,align:"center"},
-          { title: '电子邮箱', dataIndex: 'email',width:150,align:"center"},
-          { title: '期初应收',dataIndex: 'beginNeedGet',width:80,align:"center"},
-          { title: '期末应收',dataIndex: 'allNeedGet',width:80,align:"center"},
-          { title: '税率(%)', dataIndex: 'taxRate',width:80,align:"center"},
-          { title: '状态',dataIndex: 'enabled',width:70,align:"center",
-            scopedSlots: { customRender: 'customRenderFlag' }
-          },
-          {
-            title: '操作',
-            dataIndex: 'action',
-            width: 200,
-            align:"center",
-            scopedSlots: { customRender: 'action' },
-          }
-        ],
-        url: {
-          list: "/supplier/list",
-          delete: "/supplier/delete",
-          deleteBatch: "/supplier/deleteBatch",
-          importExcelUrl: "/supplier/importCustomer",
-          exportXlsUrl: "/supplier/exportExcel",
-          batchSetStatusUrl: "/supplier/batchSetStatus"
-        }
-      }
-    },
-    computed: {
-      importExcelUrl: function () {
-        return `${window._CONFIG['domianURL']}${this.url.importExcelUrl}`;
-      }
-    },
-    methods: {
-      searchReset() {
-        this.queryParam = {
-          type:'客户',
-        }
-        this.loadData(1);
+import CustomerModal from './modules/CustomerModal'
+import { JeecgListMixin } from '@/mixins/JeecgListMixin'
+import { openDownloadDialog, sheet2blob } from '@/utils/util'
+import JDate from '@/components/jeecg/JDate'
+export default {
+  name: 'CustomerList',
+  mixins: [JeecgListMixin],
+  components: {
+    CustomerModal,
+    JDate,
+  },
+  data() {
+    return {
+      labelCol: {
+        span: 5,
       },
-      handleEdit: function (record) {
-        this.$refs.modalForm.edit(record);
-        this.$refs.modalForm.title = "编辑";
-        this.$refs.modalForm.disableSubmit = false;
-        if(this.btnEnableList.indexOf(1)===-1) {
-          this.$refs.modalForm.isReadOnly = true
-        }
-      }
+      wrapperCol: {
+        span: 18,
+        offset: 1,
+      },
+      // 查询条件
+      queryParam: {
+        supplier: '',
+        type: '客户',
+        telephone: '',
+        phonenum: '',
+      },
+      ipagination: {
+        pageSizeOptions: ['10', '20', '30', '100', '200'],
+      },
+      // 表头
+      columns: [
+        {
+          title: '#',
+          dataIndex: '',
+          key: 'rowIndex',
+          width: 60,
+          align: 'center',
+          customRender: function (t, r, index) {
+            return parseInt(index) + 1
+          },
+        },
+        { title: '名称', dataIndex: 'supplier', width: 150 },
+        { title: '联系人', dataIndex: 'contacts', width: 70, align: 'center' },
+        { title: '分类', dataIndex: 'sub_type', width: 70, align: 'center' },
+        { title: '手机号码', dataIndex: 'telephone', width: 100, align: 'center' },
+        { title: '联系电话', dataIndex: 'phoneNum', width: 100, align: 'center' },
+        { title: '电子邮箱', dataIndex: 'email', width: 150, align: 'center' },
+        { title: '期初应收', dataIndex: 'beginNeedGet', width: 80, align: 'center' },
+        { title: '期末应收', dataIndex: 'allNeedGet', width: 80, align: 'center' },
+        { title: '税率(%)', dataIndex: 'taxRate', width: 80, align: 'center' },
+        {
+          title: '状态',
+          dataIndex: 'enabled',
+          width: 70,
+          align: 'center',
+          scopedSlots: { customRender: 'customRenderFlag' },
+        },
+        {
+          title: '操作',
+          dataIndex: 'action',
+          width: 200,
+          align: 'center',
+          scopedSlots: { customRender: 'action' },
+        },
+      ],
+      url: {
+        list: '/supplier/list',
+        delete: '/supplier/delete',
+        deleteBatch: '/supplier/deleteBatch',
+        importExcelUrl: '/supplier/importCustomer',
+        exportXlsUrl: '/supplier/exportExcel',
+        batchSetStatusUrl: '/supplier/batchSetStatus',
+      },
     }
-  }
+  },
+  computed: {
+    importExcelUrl: function () {
+      return `${window._CONFIG['domianURL']}${this.url.importExcelUrl}`
+    },
+  },
+  methods: {
+    searchReset() {
+      this.queryParam = {
+        type: '客户',
+      }
+      this.loadData(1)
+    },
+    handleEdit: function (record) {
+      this.$refs.modalForm.edit(record)
+      this.$refs.modalForm.title = '编辑'
+      this.$refs.modalForm.disableSubmit = false
+      if (this.btnEnableList.indexOf(1) === -1) {
+        this.$refs.modalForm.isReadOnly = true
+      }
+    },
+  },
+}
 </script>
 <style scoped>
-  @import '~@assets/less/common.less'
+@import '~@assets/less/common.less';
 </style>

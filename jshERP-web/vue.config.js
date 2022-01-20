@@ -1,7 +1,7 @@
 const path = require('path')
 const CompressionPlugin = require('compression-webpack-plugin')
 
-function resolve (dir) {
+function resolve(dir) {
     return path.join(__dirname, dir)
 }
 
@@ -10,7 +10,7 @@ module.exports = {
     // 如果你不需要生产环境的 source map，可以将其设置为 false 以加速生产环境构建。
     productionSourceMap: false,
     configureWebpack: config => {
-    // 生产环境取消 console.log
+        // 生产环境取消 console.log
         if (process.env.NODE_ENV === 'production') {
             config.optimization.minimizer[0].options.terserOptions.compress.drop_console = true
         }
@@ -48,7 +48,7 @@ module.exports = {
         port: 3000,
         proxy: {
             '/jshERP-boot': {
-                target: 'http://localhost:9999', // 请求本地 需要jshERP-boot后台项目
+                target: 'https://erp.entropybits.com', // 请求本地 需要jshERP-boot后台项目
                 ws: false,
                 changeOrigin: true
             }
