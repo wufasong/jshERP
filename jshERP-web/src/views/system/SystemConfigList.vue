@@ -119,7 +119,7 @@
                 'companyTel', 'companyFax', 'companyPostCode', 'depotFlag', 'customerFlag', 'minusStockFlag'))
               autoJumpNextInput('systemConfigModal')
             });
-            if(record.id) {
+            if(record && record.id) {
               if (record.depotFlag != null) {
                 this.depotFlagSwitch = record.depotFlag == '1' ? true : false;
               }

@@ -29,7 +29,7 @@
               {{ item.name }}
             </a-select-option>
           </a-select>
-          <a-col v-if="model.roleName=='租户'"><a-row>租户</a-row></a-col>
+          <a-col v-if="model.roleName=='租户'"><a-row>管理员</a-row></a-col>
         </a-form-item>
         <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="机构">
           <a-tree-select style="width:100%" :dropdownStyle="{maxHeight:'200px',overflow:'auto'}" allow-clear

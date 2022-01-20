@@ -8,6 +8,7 @@ import { deleteAction, getAction, postAction, downFile, getFileAccessHttpUrl } f
 import Vue from 'vue'
 import { ACCESS_TOKEN } from "@/store/mutation-types"
 import {mixinDevice} from '@/utils/mixin.js'
+import { countBy } from 'lodash';
 
 export const JeecgListMixin = {
   mixins: [mixinDevice],
@@ -92,7 +93,23 @@ export const JeecgListMixin = {
       this.loading = true;
       getAction(this.url.list, params).then((res) => {
         if (res.code===200) {
+          console.log('response : ');
+          console.log(res.data.rows);
           this.dataSource = res.data.rows;
+          if (this.dataSource && this.dataSource.length > 0)
+          {
+            for (let i = 0; i < this.dataSource.length; i++)
+            {
+              if (this.dataSource[i]['roleName'] && this.dataSource[i]['roleName']=='租户')
+              {
+                this.dataSource[i]['roleName'] = '管理员';
+              }
+              if (this.dataSource[i]['userType'] && this.dataSource[i]['userType']=='租户')
+              {
+                this.dataSource[i]['userType'] = '管理员';
+              }
+            }
+          }
           this.ipagination.total = res.data.total;
           this.tableAddTotalRow(this.columns, this.dataSource)
         }
