@@ -49,6 +49,8 @@ public class Supplier {
 
     private String deleteFlag;
 
+    private String subType;
+
     public Long getId() {
         return id;
     }
@@ -231,5 +233,13 @@ public class Supplier {
 
     public void setDeleteFlag(String deleteFlag) {
         this.deleteFlag = deleteFlag == null ? null : deleteFlag.trim();
+    }
+
+    public String getSubType() {
+        return subType;
+    }
+
+    public void setSubType(String subType) {
+        this.subType = subType == null ? null : subType.trim();
     }
 }
