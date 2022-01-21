@@ -27,7 +27,7 @@
         </a-col>
         <a-col :span="24 / 2">
           <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="分类">
-            <a-input placeholder="请输入分类" v-decorator.trim="['sub_type']" />
+            <a-input placeholder="请输入分类" v-decorator.trim="['subType']" />
           </a-form-item>
         </a-col>
         <a-col :span="24 / 2">
@@ -142,7 +142,7 @@ export default {
             this.model,
             'supplier',
             'contacts',
-            'sub_type',
+            'subType',
             'telephone',
             'email',
             'telephone',

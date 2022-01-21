@@ -155,7 +155,6 @@ export default {
         },
         { title: '名称', dataIndex: 'supplier', width: 150 },
         { title: '联系人', dataIndex: 'contacts', width: 70, align: 'center' },
-        { title: '分类', dataIndex: 'sub_type', width: 70, align: 'center' },
         { title: '手机号码', dataIndex: 'telephone', width: 100, align: 'center' },
         { title: '联系电话', dataIndex: 'phoneNum', width: 100, align: 'center' },
         { title: '电子邮箱', dataIndex: 'email', width: 150, align: 'center' },
@@ -200,6 +199,7 @@ export default {
       this.loadData(1)
     },
     handleEdit: function (record) {
+      console.log(record)
       this.$refs.modalForm.edit(record)
       this.$refs.modalForm.title = '编辑'
       this.$refs.modalForm.disableSubmit = false
