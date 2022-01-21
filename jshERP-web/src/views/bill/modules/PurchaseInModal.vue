@@ -148,13 +148,13 @@
           </a-col>
           <a-col :lg="6" :md="12" :sm="24">
             <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="本次付款">
-              <a-input placeholder="请输入本次付款" v-decorator.trim="[ 'changeAmount' ]" @keyup="onKeyUpChangeAmount"/>
+              <a-input placeholder="请输入本次付款" v-decorator.trim="[ 'changeAmount' ]" @keyup="onKeyUpChangeAmount" :readOnly="true"/>
             </a-form-item>
           </a-col>
           <a-col :lg="6" :md="12" :sm="24">
             <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="本次欠款" data-step="10" data-title="本次欠款"
                          data-intro="欠款产生的费用，后续可以在付款单进行支付">
-              <a-input placeholder="请输入本次欠款" v-decorator.trim="[ 'debt' ]" :readOnly="true"/>
+              <a-input placeholder="请输入本次欠款" v-decorator.trim="[ 'debt' ]" @keyup="onKeyUpDebt" />
             </a-form-item>
           </a-col>
           <a-col :lg="6" :md="12" :sm="24">
@@ -270,6 +270,7 @@
             { title: '备注', key: 'remark', width: '5%', type: FormTypes.input }
           ]
         },
+        taxLastMoneyTotal: 0, // 保存所有商品“税价合计”总和
         confirmLoading: false,
         validatorRules:{
           operTime:{
