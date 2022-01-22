@@ -66,15 +66,17 @@
             }
           },
           {
-            title: '单据编号', dataIndex: 'number', width: 100,
+            title: '单据编号', dataIndex: 'number', width: 110,
             scopedSlots: { customRender: 'numberCustomRender' },
           },
-          { title: '类型', dataIndex: 'type', width: 100},
+          { title: '类型', dataIndex: 'type', width: 90},
           { title: '条码', dataIndex: 'barCode', width: 100},
-          { title: '名称', dataIndex: 'materialName', width: 200},
+          { title: '名称', dataIndex: 'materialName', width: 170},
           { title: '仓库名称', dataIndex: 'depotName', width: 80},
-          { title: '数量', dataIndex: 'basicNumber', width: 80},
-          { title: '日期', dataIndex: 'operTime', width: 100}
+          { title: '数量', dataIndex: 'basicNumber', width: 40},
+          { title: '单价', dataIndex: 'unitPrice', width: 50},
+          { title: '金额', dataIndex: 'allPrice', width: 60},
+          { title: '日期', dataIndex: 'operTime', width: 120}
         ],
         labelCol: {
           xs: { span: 1 },
