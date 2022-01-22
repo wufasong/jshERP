@@ -10,6 +10,8 @@
         <result column="sub_type" jdbcType="VARCHAR" property="subType" />
         <result column="b_num" jdbcType="BIGINT" property="bnum" />
         <result column="depotName" jdbcType="VARCHAR" property="depotName" />
+        <result column="unit_price" jdbcType="DECIMAL" property="unitPrice" />
+        <result column="all_price" jdbcType="DECIMAL" property="allPrice" />
         <result column="oTime" jdbcType="TIMESTAMP" property="otime" />
     </resultMap>
 
@@ -131,7 +133,7 @@
     </select>
 
     <select id="findDetailByTypeAndMaterialIdList" parameterType="com.jsh.erp.datasource.entities.DepotItemExample" resultMap="DetailByTypeAndMIdResultMap">
-        select dh.number,me.bar_code,m.name material_name,dh.type,dh.sub_type,
+        select dh.number,me.bar_code,m.name material_name,dh.type,dh.sub_type,di.unit_price,di.all_price,
         case
             when type='入库' then ifnull(di.basic_number,0)
             when type='出库' then 0-di.basic_number
