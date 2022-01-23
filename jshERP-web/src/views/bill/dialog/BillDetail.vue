@@ -1103,6 +1103,8 @@
           { title: '税率(%)', dataIndex: 'taxRate'},
           { title: '税额', dataIndex: 'taxMoney'},
           { title: '价税合计', dataIndex: 'taxLastMoney'},
+          { title: '成本单价', dataIndex: 'stockPrice'},
+          { title: '成本金额', dataIndex: 'stockCost'},
           { title: '备注', dataIndex: 'remark'}
         ],
         saleBackColumns: [

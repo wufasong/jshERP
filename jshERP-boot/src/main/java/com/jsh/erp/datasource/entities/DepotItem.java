@@ -38,6 +38,10 @@ public class DepotItem {
 
     private BigDecimal taxLastMoney;
 
+    private BigDecimal stockPrice;
+
+    private BigDecimal stockCost;
+
     private String materialType;
 
     private String snList;
@@ -184,6 +188,22 @@ public class DepotItem {
 
     public void setTaxLastMoney(BigDecimal taxLastMoney) {
         this.taxLastMoney = taxLastMoney;
+    }
+
+    public BigDecimal getStockPrice() {
+        return stockPrice;
+    }
+
+    public void setStockPrice(BigDecimal stockPrice) {
+        this.stockPrice = stockPrice;
+    }
+
+    public BigDecimal getStockCost() {
+        return stockCost;
+    }
+
+    public void setStockCost(BigDecimal stockCost) {
+        this.stockCost = stockCost;
     }
 
     public String getMaterialType() {
