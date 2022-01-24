@@ -15,7 +15,13 @@ public class DepotEx extends Depot{
     //负责人名字
     private String principalName;
 
+    /**
+     * 只有上面的字段来自 depot
+     * 下面信息只能来自 material_initial_stock
+     */
     private BigDecimal initStock;
+
+    private BigDecimal initStockCost;
 
     private BigDecimal currentStock;
 

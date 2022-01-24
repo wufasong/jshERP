@@ -11,6 +11,8 @@ public class MaterialInitialStock {
 
     private BigDecimal number;
 
+    private BigDecimal cost;
+
     private BigDecimal lowSafeStock;
 
     private BigDecimal highSafeStock;
@@ -49,6 +51,14 @@ public class MaterialInitialStock {
 
     public void setNumber(BigDecimal number) {
         this.number = number;
+    }
+
+    public BigDecimal getCost() {
+        return cost;
+    }
+
+    public void setCost(BigDecimal cost) {
+        this.cost = cost;
     }
 
     public BigDecimal getLowSafeStock() {

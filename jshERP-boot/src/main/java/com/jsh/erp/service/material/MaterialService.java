@@ -807,6 +807,24 @@ public class MaterialService {
     }
 
     /**
+     * 根据商品和仓库获取初始库存成本
+     * @param materialId
+     * @param depotId
+     * @return
+     */
+    public BigDecimal getInitStockCost(Long materialId, Long depotId) {
+        BigDecimal cost = BigDecimal.ZERO;
+        MaterialInitialStockExample example = new MaterialInitialStockExample();
+        example.createCriteria().andMaterialIdEqualTo(materialId).andDepotIdEqualTo(depotId)
+                .andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
+        List<MaterialInitialStock> list = materialInitialStockMapper.selectByExample(example);
+        if(list!=null && list.size()>0) {
+            cost = list.get(0).getCost();
+        }
+        return cost;
+    }
+
+    /**
      * 根据商品和仓库获取当前库存
      * @param materialId
      * @param depotId

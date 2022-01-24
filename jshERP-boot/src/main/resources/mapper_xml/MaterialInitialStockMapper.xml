@@ -6,6 +6,7 @@
     <result column="material_id" jdbcType="BIGINT" property="materialId" />
     <result column="depot_id" jdbcType="BIGINT" property="depotId" />
     <result column="number" jdbcType="DECIMAL" property="number" />
+    <result column="cost" jdbcType="DECIMAL" property="cost" />
     <result column="low_safe_stock" jdbcType="DECIMAL" property="lowSafeStock" />
     <result column="high_safe_stock" jdbcType="DECIMAL" property="highSafeStock" />
     <result column="tenant_id" jdbcType="BIGINT" property="tenantId" />
@@ -104,10 +105,10 @@
   </delete>
   <insert id="insert" parameterType="com.jsh.erp.datasource.entities.MaterialInitialStock">
     insert into jsh_material_initial_stock (id, material_id, depot_id, 
-      number, low_safe_stock, high_safe_stock, 
+      number, cost, low_safe_stock, high_safe_stock,
       tenant_id, delete_flag)
     values (#{id,jdbcType=BIGINT}, #{materialId,jdbcType=BIGINT}, #{depotId,jdbcType=BIGINT}, 
-      #{number,jdbcType=DECIMAL}, #{lowSafeStock,jdbcType=DECIMAL}, #{highSafeStock,jdbcType=DECIMAL}, 
+      #{number,jdbcType=DECIMAL}, #{cost,jdbcType=DECIMAL}, #{lowSafeStock,jdbcType=DECIMAL}, #{highSafeStock,jdbcType=DECIMAL},
       #{tenantId,jdbcType=BIGINT}, #{deleteFlag,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.jsh.erp.datasource.entities.MaterialInitialStock">
@@ -124,6 +125,9 @@
       </if>
       <if test="number != null">
         number,
+      </if>
+      <if test="cost != null">
+        cost,
       </if>
       <if test="lowSafeStock != null">
         low_safe_stock,
@@ -150,6 +154,9 @@
       </if>
       <if test="number != null">
         #{number,jdbcType=DECIMAL},
+      </if>
+      <if test="cost != null">
+        #{cost,jdbcType=DECIMAL},
       </if>
       <if test="lowSafeStock != null">
         #{lowSafeStock,jdbcType=DECIMAL},
@@ -186,6 +193,9 @@
       <if test="record.number != null">
         number = #{record.number,jdbcType=DECIMAL},
       </if>
+      <if test="record.cost != null">
+        cost = #{record.cost,jdbcType=DECIMAL},
+      </if>
       <if test="record.lowSafeStock != null">
         low_safe_stock = #{record.lowSafeStock,jdbcType=DECIMAL},
       </if>
@@ -209,6 +219,7 @@
       material_id = #{record.materialId,jdbcType=BIGINT},
       depot_id = #{record.depotId,jdbcType=BIGINT},
       number = #{record.number,jdbcType=DECIMAL},
+      cost = #{record.cost,jdbcType=DECIMAL},
       low_safe_stock = #{record.lowSafeStock,jdbcType=DECIMAL},
       high_safe_stock = #{record.highSafeStock,jdbcType=DECIMAL},
       tenant_id = #{record.tenantId,jdbcType=BIGINT},
@@ -228,6 +239,9 @@
       </if>
       <if test="number != null">
         number = #{number,jdbcType=DECIMAL},
+      </if>
+      <if test="cost != null">
+        cost = #{cost,jdbcType=DECIMAL},
       </if>
       <if test="lowSafeStock != null">
         low_safe_stock = #{lowSafeStock,jdbcType=DECIMAL},
@@ -249,6 +263,7 @@
     set material_id = #{materialId,jdbcType=BIGINT},
       depot_id = #{depotId,jdbcType=BIGINT},
       number = #{number,jdbcType=DECIMAL},
+      cost = #{cost,jdbcType=DECIMAL},
       low_safe_stock = #{lowSafeStock,jdbcType=DECIMAL},
       high_safe_stock = #{highSafeStock,jdbcType=DECIMAL},
       tenant_id = #{tenantId,jdbcType=BIGINT},
