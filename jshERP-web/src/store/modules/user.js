@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { login, logout } from "@/api/login"
-import { ACCESS_TOKEN, USER_NAME,USER_INFO,UI_CACHE_DB_DICT_DATA,USER_ID,USER_LOGIN_NAME,CACHE_INCLUDED_ROUTES } from "@/store/mutation-types"
+import { ACCESS_TOKEN, USER_NAME, USER_INFO, UI_CACHE_DB_DICT_DATA, USER_ID, USER_LOGIN_NAME, CACHE_INCLUDED_ROUTES } from "@/store/mutation-types"
 import { welcome } from "@/utils/util"
 import { queryPermissionsByUser } from '@/api/api'
 import { getAction } from '@/api/manage'
@@ -40,9 +40,9 @@ const user = {
     // CAS验证登录
     ValidateLogin({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
-        getAction("/cas/client/validateLogin",userInfo).then(response => {
-          console.log("----cas 登录--------",response);
-          if(response.success){
+        getAction("/cas/client/validateLogin", userInfo).then(response => {
+          console.log("----cas 登录--------", response);
+          if (response.success) {
             const result = response.result
             const userInfo = result.userInfo
             Vue.ls.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
@@ -50,10 +50,10 @@ const user = {
             Vue.ls.set(USER_INFO, userInfo, 7 * 24 * 60 * 60 * 1000)
             commit('SET_TOKEN', result.token)
             commit('SET_INFO', userInfo)
-            commit('SET_NAME', { username: userInfo.username,realname: userInfo.realname, welcome: welcome() })
+            commit('SET_NAME', { username: userInfo.username, realname: userInfo.realname, welcome: welcome() })
             commit('SET_AVATAR', userInfo.avatar)
             resolve(response)
-          }else{
+          } else {
             resolve(response)
           }
         }).catch(error => {
@@ -65,8 +65,8 @@ const user = {
     Login({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
         login(userInfo).then(response => {
-          if(response.code ==200){
-            if(response.data.msgTip == 'user can login'){
+          if (response.code == 200) {
+            if (response.data.msgTip == 'user can login') {
               const result = response.data
               Vue.ls.set(USER_ID, result.user.id, 7 * 24 * 60 * 60 * 1000);
               Vue.ls.set(USER_LOGIN_NAME, result.user.loginName, 7 * 24 * 60 * 60 * 1000);
@@ -77,7 +77,7 @@ const user = {
             }
             commit('SET_INFO', userInfo)
             resolve(response)
-          }else{
+          } else {
             reject(response)
           }
         }).catch(error => {
@@ -89,9 +89,27 @@ const user = {
     GetPermissionList({ commit }) {
       return new Promise((resolve, reject) => {
         //let v_token = Vue.ls.get(ACCESS_TOKEN);
-        let params = {pNumber:0,userId: Vue.ls.get(USER_ID)};
+        let params = { pNumber: 0, userId: Vue.ls.get(USER_ID) };
         queryPermissionsByUser(params).then(response => {
+          let finIndex = response.findIndex(res => res.text == '财务管理' && res.url == '/financial');
+          if (finIndex != -1) {
+            response[finIndex].children.push({
+              component: "/financial/BusinessAnalyse",
+              icon: "profile",
+              id: 9999,
+              text: "运营分析总表",
+              url: "/financial/BusinessAnalyse"
+            })
+            response[finIndex].children.push({
+              component: "/financial/BusinessSimple",
+              icon: "profile",
+              id: 9998,
+              text: "经营分析简表",
+              url: "/financial/BusinessSimple"
+            })
+          }
           const menuData = response;
+
           if (menuData && menuData.length > 0) {
             commit('SET_PERMISSIONLIST', menuData)
           } else {
@@ -126,7 +144,7 @@ const user = {
     ThirdLogin({ commit }, token) {
       return new Promise((resolve, reject) => {
         thirdLogin(token).then(response => {
-          if(response.code =='200'){
+          if (response.code == '200') {
             const result = response.result
             const userInfo = result.userInfo
             Vue.ls.set(ACCESS_TOKEN, result.token, 7 * 24 * 60 * 60 * 1000)
@@ -134,10 +152,10 @@ const user = {
             Vue.ls.set(USER_INFO, userInfo, 7 * 24 * 60 * 60 * 1000)
             commit('SET_TOKEN', result.token)
             commit('SET_INFO', userInfo)
-            commit('SET_NAME', { username: userInfo.username,realname: userInfo.realname, welcome: welcome() })
+            commit('SET_NAME', { username: userInfo.username, realname: userInfo.realname, welcome: welcome() })
             commit('SET_AVATAR', userInfo.avatar)
             resolve(response)
-          }else{
+          } else {
             reject(response)
           }
         }).catch(error => {
