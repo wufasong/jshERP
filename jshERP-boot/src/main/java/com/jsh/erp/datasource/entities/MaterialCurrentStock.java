@@ -11,6 +11,10 @@ public class MaterialCurrentStock {
 
     private BigDecimal currentNumber;
 
+    private BigDecimal currentPrice;
+
+    private BigDecimal currentCost;
+
     private Long tenantId;
 
     private String deleteFlag;
@@ -45,6 +49,22 @@ public class MaterialCurrentStock {
 
     public void setCurrentNumber(BigDecimal currentNumber) {
         this.currentNumber = currentNumber;
+    }
+
+    public BigDecimal getCurrentPrice() {
+        return currentPrice;
+    }
+
+    public void setCurrentPrice(BigDecimal currentPrice) {
+        this.currentPrice = currentPrice;
+    }
+
+    public BigDecimal getCurrentCost() {
+        return currentCost;
+    }
+
+    public void setCurrentCost(BigDecimal currentCost) {
+        this.currentCost = currentCost;
     }
 
     public Long getTenantId() {

@@ -668,9 +668,9 @@ public class DepotItemService {
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void updateCurrentStock(DepotItem depotItem){
-        updateCurrentStockFun(depotItem.getMaterialId(), depotItem.getDepotId());
+        updateCurrentStockInfoByDepotItem(depotItem, false);
         if(depotItem.getAnotherDepotId()!=null){
-            updateCurrentStockFun(depotItem.getMaterialId(), depotItem.getAnotherDepotId());
+            updateCurrentStockInfoByDepotItem(depotItem, true);
         }
     }
 
@@ -694,6 +694,52 @@ public class DepotItemService {
                 materialCurrentStock.setId(mcsId);
                 materialCurrentStockMapper.updateByPrimaryKeySelective(materialCurrentStock);
             } else {
+                materialCurrentStockMapper.insertSelective(materialCurrentStock);
+            }
+        }
+    }
+
+    /**
+     * 出入库时，根据出入库信息更新当前库存数量、库存成本
+     * @param depotItem
+     */
+    public void updateCurrentStockInfoByDepotItem(DepotItem depotItem, boolean another) {
+        Long mId = depotItem.getMaterialId();
+        Long dId = depotItem.getDepotId();
+        if (another)
+        {
+            dId = depotItem.getAnotherDepotId();
+        }
+        if(mId!=null && dId!=null) {
+            MaterialCurrentStockExample example = new MaterialCurrentStockExample();
+            example.createCriteria().andMaterialIdEqualTo(mId).andDepotIdEqualTo(dId)
+                    .andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
+            List<MaterialCurrentStock> list = materialCurrentStockMapper.selectByExample(example);
+            MaterialCurrentStock materialCurrentStock = new MaterialCurrentStock();
+            materialCurrentStock.setMaterialId(mId);
+            materialCurrentStock.setDepotId(dId);
+            BigDecimal current_number = getStockByParam(dId,mId,null,null);
+            materialCurrentStock.setCurrentNumber(current_number);
+            if(list!=null && list.size()>0) {
+                Long mcsId = list.get(0).getId();
+                BigDecimal oldCost = list.get(0).getCurrentCost();
+                materialCurrentStock.setId(mcsId);
+                BigDecimal currentCost = new BigDecimal(0);
+                DepotHead depotHead = depotHeadMapper.selectByPrimaryKey(depotItem.getId());
+                if (depotHead.getType().compareTo(new String("出库")) == 0)
+                {
+                    materialCurrentStock.setCurrentCost(oldCost.subtract(depotItem.getStockCost()));
+                    materialCurrentStock.setCurrentPrice(oldCost.subtract(depotItem.getStockCost()).divide(current_number, BigDecimal.ROUND_HALF_DOWN));
+                }
+                else if (depotHead.getType().compareTo(new String("入库")) == 0)
+                {
+                    materialCurrentStock.setCurrentCost(oldCost.add(depotItem.getStockCost()));
+                    materialCurrentStock.setCurrentPrice(oldCost.add(depotItem.getStockCost()).divide(current_number, BigDecimal.ROUND_HALF_DOWN));
+                }
+                materialCurrentStockMapper.updateByPrimaryKeySelective(materialCurrentStock);
+            } else {
+                materialCurrentStock.setCurrentCost(depotItem.getStockCost());
+                materialCurrentStock.setCurrentCost(depotItem.getStockPrice());
                 materialCurrentStockMapper.insertSelective(materialCurrentStock);
             }
         }
