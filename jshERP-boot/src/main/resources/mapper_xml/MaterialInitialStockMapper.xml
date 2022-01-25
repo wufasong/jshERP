@@ -71,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, material_id, depot_id, number, low_safe_stock, high_safe_stock, tenant_id, delete_flag
+    id, material_id, depot_id, number, cost, low_safe_stock, high_safe_stock, tenant_id, delete_flag
   </sql>
   <select id="selectByExample" parameterType="com.jsh.erp.datasource.entities.MaterialInitialStockExample" resultMap="BaseResultMap">
     select
