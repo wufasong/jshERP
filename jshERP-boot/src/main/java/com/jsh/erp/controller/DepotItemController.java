@@ -227,7 +227,7 @@ public class DepotItemController {
                     item.put("taxMoney", diEx.getTaxMoney());
                     item.put("taxLastMoney", diEx.getTaxLastMoney());
                     item.put("stockPrice", diEx.getStockPrice() == null ? 0 : diEx.getStockPrice());
-                    item.put("stockCost", diEx.getStockCost() == null ? 0 : diEx.getStockPrice());
+                    item.put("stockCost", diEx.getStockCost() == null ? 0 : diEx.getStockCost());
                     item.put("mType", diEx.getMaterialType());
                     item.put("op", 1);
                     dataArray.add(item);

@@ -182,6 +182,11 @@ public class MaterialService {
                     JSONObject jsonObj = stockArr.getJSONObject(i);
                     if(jsonObj.get("id")!=null && jsonObj.get("initStock")!=null) {
                         String number = jsonObj.getString("initStock");
+                        // 保存期初库存成本
+                        BigDecimal initStockCost = null;
+                        if(jsonObj.get("initStockCost")!=null) {
+                            initStockCost = jsonObj.getBigDecimal("initStockCost");
+                        }
                         BigDecimal lowSafeStock = null;
                         BigDecimal highSafeStock = null;
                         if(jsonObj.get("lowSafeStock")!=null) {
@@ -192,8 +197,8 @@ public class MaterialService {
                         }
                         Long depotId = jsonObj.getLong("id");
                         if(StringUtil.isNotEmpty(number) && Double.valueOf(number)>0 || lowSafeStock!=null || highSafeStock!=null) {
-                            insertInitialStockByMaterialAndDepot(depotId, mId, parseBigDecimalEx(number), lowSafeStock, highSafeStock);
-                            insertCurrentStockByMaterialAndDepot(depotId, mId, parseBigDecimalEx(number));
+                            insertInitialStockByMaterialAndDepot(depotId, mId, parseBigDecimalEx(number), initStockCost, lowSafeStock, highSafeStock);
+                            insertCurrentStockByMaterialAndDepot(depotId, mId, parseBigDecimalEx(number), initStockCost);
                         }
                     }
                 }
@@ -229,6 +234,11 @@ public class MaterialService {
                     JSONObject jsonObj = stockArr.getJSONObject(i);
                     if (jsonObj.get("id") != null && jsonObj.get("initStock") != null) {
                         String number = jsonObj.getString("initStock");
+                        BigDecimal initStockCost = null;
+                        if(jsonObj.get("initStockCost")!=null) {
+                            initStockCost = jsonObj.getBigDecimal("initStockCost");
+                        }
+
                         BigDecimal lowSafeStock = null;
                         BigDecimal highSafeStock = null;
                         if(jsonObj.get("lowSafeStock")!=null) {
@@ -243,7 +253,7 @@ public class MaterialService {
                         example.createCriteria().andMaterialIdEqualTo(material.getId()).andDepotIdEqualTo(depotId);
                         materialInitialStockMapper.deleteByExample(example);
                         if (StringUtil.isNotEmpty(number) && Double.parseDouble(number) != 0 || lowSafeStock!=null || highSafeStock!=null) {
-                            insertInitialStockByMaterialAndDepot(depotId, material.getId(), parseBigDecimalEx(number), lowSafeStock, highSafeStock);
+                            insertInitialStockByMaterialAndDepot(depotId, material.getId(), parseBigDecimalEx(number), initStockCost, lowSafeStock, highSafeStock);
                         }
                         //更新当前库存
                         depotItemService.updateCurrentStockFun(material.getId(), depotId);
@@ -628,7 +638,8 @@ public class MaterialService {
                     materialInitialStockMapper.deleteByExample(example);
                     if(stock!=null && stock.compareTo(BigDecimal.ZERO)!=0) {
                         depotId = depot.getId();
-                        insertInitialStockByMaterialAndDepot(depotId, mId, stock, null, null);
+                        //TODO: excel导入商品信息时，未包含库存成本，库存成本可以在导入后修改
+                        insertInitialStockByMaterialAndDepot(depotId, mId, stock, null, null, null);
                         //更新当前库存
                         depotItemService.updateCurrentStockFun(mId, depotId);
                     }
@@ -693,12 +704,14 @@ public class MaterialService {
      * @param stock
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
-    public void insertInitialStockByMaterialAndDepot(Long depotId, Long mId, BigDecimal stock, BigDecimal lowSafeStock, BigDecimal highSafeStock){
+    public void insertInitialStockByMaterialAndDepot(Long depotId, Long mId, BigDecimal stock, BigDecimal cost, BigDecimal lowSafeStock, BigDecimal highSafeStock){
         MaterialInitialStock materialInitialStock = new MaterialInitialStock();
         materialInitialStock.setDepotId(depotId);
         materialInitialStock.setMaterialId(mId);
         stock = stock == null? BigDecimal.ZERO: stock;
         materialInitialStock.setNumber(stock);
+        cost = cost == null? BigDecimal.ZERO: cost;
+        materialInitialStock.setCost(cost);
         if(lowSafeStock!=null) {
             materialInitialStock.setLowSafeStock(lowSafeStock);
         }
@@ -715,11 +728,12 @@ public class MaterialService {
      * @param stock
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
-    public void insertCurrentStockByMaterialAndDepot(Long depotId, Long mId, BigDecimal stock){
+    public void insertCurrentStockByMaterialAndDepot(Long depotId, Long mId, BigDecimal stock, BigDecimal cost){
         MaterialCurrentStock materialCurrentStock = new MaterialCurrentStock();
         materialCurrentStock.setDepotId(depotId);
         materialCurrentStock.setMaterialId(mId);
         materialCurrentStock.setCurrentNumber(stock);
+        materialCurrentStock.setCurrentCost(cost);
         materialCurrentStockMapper.insertSelective(materialCurrentStock); //存入初始库存
     }
 
@@ -786,6 +800,33 @@ public class MaterialService {
             }
         }
         return stock;
+    }
+
+    /**
+     * 根据商品获取初始库存成本-多仓库
+     * @param depotList
+     * @param materialId
+     * @return
+     */
+    public BigDecimal getInitStockCostByMidAndDepotList(List<Long> depotList, Long materialId) {
+        BigDecimal cost = BigDecimal.ZERO;
+        MaterialInitialStockExample example = new MaterialInitialStockExample();
+        if(depotList!=null && depotList.size()>0) {
+            example.createCriteria().andMaterialIdEqualTo(materialId).andDepotIdIn(depotList)
+                    .andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
+        } else {
+            example.createCriteria().andMaterialIdEqualTo(materialId)
+                    .andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
+        }
+        List<MaterialInitialStock> list = materialInitialStockMapper.selectByExample(example);
+        if(list!=null && list.size()>0) {
+            for(MaterialInitialStock ms: list) {
+                if(ms!=null) {
+                    cost = cost.add(ms.getCost());
+                }
+            }
+        }
+        return cost;
     }
 
     /**

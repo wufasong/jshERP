@@ -727,8 +727,11 @@ public class DepotHeadService {
         dhExample.createCriteria().andNumberEqualTo(depotHead.getNumber()).andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
         List<DepotHead> list = depotHeadMapper.selectByExample(dhExample);
         if(list!=null) {
+            logger.info("list item ", list.get(0));
             Long headId = list.get(0).getId();
             /**入库和出库处理单据子表信息*/
+            logger.info("rows", rows);
+            logger.info("headId", headId);
             depotItemService.saveDetials(rows,headId, request);
         }
         logService.insertLog("单据",

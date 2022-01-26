@@ -127,7 +127,7 @@
       tax_unit_price, all_price, remark, 
       depot_id, another_depot_id, tax_rate, 
       tax_money, tax_last_money, material_type, 
-      sn_list, batch_number, expiration_date, 
+      sn_list, batch_number, stock_price, stock_cost, expiration_date,
       tenant_id, delete_flag)
     values (#{id,jdbcType=BIGINT}, #{headerId,jdbcType=BIGINT}, #{materialId,jdbcType=BIGINT}, 
       #{materialExtendId,jdbcType=BIGINT}, #{materialUnit,jdbcType=VARCHAR}, #{sku,jdbcType=VARCHAR}, 
@@ -135,7 +135,9 @@
       #{taxUnitPrice,jdbcType=DECIMAL}, #{allPrice,jdbcType=DECIMAL}, #{remark,jdbcType=VARCHAR}, 
       #{depotId,jdbcType=BIGINT}, #{anotherDepotId,jdbcType=BIGINT}, #{taxRate,jdbcType=DECIMAL}, 
       #{taxMoney,jdbcType=DECIMAL}, #{taxLastMoney,jdbcType=DECIMAL}, #{materialType,jdbcType=VARCHAR}, 
-      #{snList,jdbcType=VARCHAR}, #{batchNumber,jdbcType=VARCHAR}, #{expirationDate,jdbcType=TIMESTAMP}, 
+      #{snList,jdbcType=VARCHAR}, #{batchNumber,jdbcType=VARCHAR},
+      #{stockPrice,jdbcType=DECIMAL}, #{stockCost,jdbcType=DECIMAL},
+      #{expirationDate,jdbcType=TIMESTAMP},
       #{tenantId,jdbcType=BIGINT}, #{deleteFlag,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.jsh.erp.datasource.entities.DepotItem">
@@ -200,6 +202,12 @@
       </if>
       <if test="batchNumber != null">
         batch_number,
+      </if>
+      <if test="stockPrice != null">
+        stock_price,
+      </if>
+      <if test="stockCost != null">
+        stock_cost,
       </if>
       <if test="expirationDate != null">
         expiration_date,
@@ -271,6 +279,12 @@
       </if>
       <if test="batchNumber != null">
         #{batchNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="stockPrice != null">
+        #{stockPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="stockCost != null">
+        #{stockCost,jdbcType=DECIMAL},
       </if>
       <if test="expirationDate != null">
         #{expirationDate,jdbcType=TIMESTAMP},

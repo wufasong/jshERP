@@ -84,13 +84,31 @@ public interface DepotItemMapperEx {
             @Param("beginTime") String beginTime,
             @Param("endTime") String endTime);
 
+    BigDecimal getStockCostCheckSumByDepotList(
+            @Param("depotList") List<Long> depotList,
+            @Param("mId") Long mId,
+            @Param("beginTime") String beginTime,
+            @Param("endTime") String endTime);
+
     DepotItemVo4Stock getSkuStockByParam(
             @Param("depotId") Long depotId,
             @Param("meId") Long meId,
             @Param("beginTime") String beginTime,
             @Param("endTime") String endTime);
 
+    DepotItemVo4Stock getSkuStockCostByParam(
+            @Param("depotId") Long depotId,
+            @Param("meId") Long meId,
+            @Param("beginTime") String beginTime,
+            @Param("endTime") String endTime);
+
     DepotItemVo4Stock getStockByParamWithDepotList(
+            @Param("depotList") List<Long> depotList,
+            @Param("mId") Long mId,
+            @Param("beginTime") String beginTime,
+            @Param("endTime") String endTime);
+
+    DepotItemVo4Stock getStockCostByParamWithDepotList(
             @Param("depotList") List<Long> depotList,
             @Param("mId") Long mId,
             @Param("beginTime") String beginTime,

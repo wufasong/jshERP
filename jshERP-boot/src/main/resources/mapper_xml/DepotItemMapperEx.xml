@@ -81,6 +81,17 @@
         <result column="disAssemOutTotal" jdbcType="DECIMAL" property="disAssemOutTotal" />
     </resultMap>
 
+    <resultMap id="stockCostMap" type="com.jsh.erp.datasource.vo.DepotItemVo4StockCost">
+        <result column="inCostTotal" jdbcType="DECIMAL" property="inCostTotal" />
+        <result column="outCostTotal" jdbcType="DECIMAL" property="outCostTotal" />
+        <result column="transfInCostTotal" jdbcType="DECIMAL" property="transfInCostTotal" />
+        <result column="transfOutCostTotal" jdbcType="DECIMAL" property="transfOutCostTotal" />
+        <result column="assemInCostTotal" jdbcType="DECIMAL" property="assemInCostTotal" />
+        <result column="assemOutCostTotal" jdbcType="DECIMAL" property="assemOutCostTotal" />
+        <result column="disAssemInCostTotal" jdbcType="DECIMAL" property="disAssemInCostTotal" />
+        <result column="disAssemOutCostTotal" jdbcType="DECIMAL" property="disAssemOutCostTotal" />
+    </resultMap>
+
     <resultMap id="batchNumberListMap" type="com.jsh.erp.datasource.vo.DepotItemVoBatchNumberList">
         <result column="id" jdbcType="VARCHAR" property="id" />
         <result column="bar_code" jdbcType="VARCHAR" property="barCode" />
@@ -299,6 +310,30 @@
         and ifnull(di.delete_flag,'0') !='1'
     </select>
 
+    <select id="getStockCostCheckSumByDepotList"  resultType="java.math.BigDecimal">
+        select ifnull(sum(di.stock_cost),0) stockCostCheckSum from jsh_depot_head dh
+        left JOIN jsh_depot_item di on dh.id=di.header_id
+        where 1=1
+        <if test="mId != null">
+            and di.material_id=#{mId}
+        </if>
+        and dh.sub_type='盘点复盘'
+        <if test="depotList.size()>0">
+            and di.depot_id in
+            <foreach collection="depotList" item="item" index="index" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="beginTime != null">
+            and dh.oper_time &gt;= #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and dh.oper_time &lt;= #{endTime}
+        </if>
+        and ifnull(dh.delete_flag,'0') !='1'
+        and ifnull(di.delete_flag,'0') !='1'
+    </select>
+
     <select id="getSkuStockByParam" resultMap="stockMap">
         select
         sum(case when dh.type='入库' <if test="depotId != null">and di.depot_id=#{depotId}</if> then di.basic_number else 0 end) as inTotal,
@@ -309,6 +344,31 @@
         sum(case when dh.sub_type='组装单' and di.material_type='普通子件' <if test="depotId != null">and di.depot_id=#{depotId}</if> then di.basic_number else 0 end) as assemOutTotal,
         sum(case when dh.sub_type='拆卸单' and di.material_type='普通子件' <if test="depotId != null">and di.depot_id=#{depotId}</if> then di.basic_number else 0 end) as disAssemInTotal,
         sum(case when dh.sub_type='拆卸单' and di.material_type='组合件' <if test="depotId != null"> and di.depot_id=#{depotId}</if> then di.basic_number else 0 end) as disAssemOutTotal
+        from
+        jsh_depot_head dh
+        left join jsh_depot_item di on dh.id=di.header_id and ifnull(di.delete_flag,'0') !='1'
+        where 1=1
+        and ifnull(dh.delete_flag,'0') !='1'
+        and di.material_extend_id=#{meId}
+        and ifnull(di.sku,'') !=''
+        <if test="beginTime != null">
+            and dh.oper_time &gt;= #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and dh.oper_time &lt;= #{endTime}
+        </if>
+    </select>
+
+    <select id="getSkuStockCostByParam" resultMap="stockMap">
+        select
+        sum(case when dh.type='入库' <if test="depotId != null">and di.depot_id=#{depotId}</if> then di.stock_cost else 0 end) as inTotal,
+        sum(case when dh.type='出库' and dh.sub_type!='调拨' <if test="depotId != null">and di.depot_id=#{depotId}</if> then di.stock_cost else 0 end) as outTotal,
+        sum(case when dh.sub_type='调拨' <if test="depotId != null">and di.another_depot_id=#{depotId}</if> then di.stock_cost else 0 end) as transfInTotal,
+        sum(case when dh.sub_type='调拨' <if test="depotId != null">and di.depot_id=#{depotId}</if> then di.stock_cost else 0 end) as transfOutTotal,
+        sum(case when dh.sub_type='组装单' and di.material_type='组合件' <if test="depotId != null">and di.depot_id=#{depotId}</if> then di.stock_cost else 0 end) as assemInTotal,
+        sum(case when dh.sub_type='组装单' and di.material_type='普通子件' <if test="depotId != null">and di.depot_id=#{depotId}</if> then di.stock_cost else 0 end) as assemOutTotal,
+        sum(case when dh.sub_type='拆卸单' and di.material_type='普通子件' <if test="depotId != null">and di.depot_id=#{depotId}</if> then di.stock_cost else 0 end) as disAssemInTotal,
+        sum(case when dh.sub_type='拆卸单' and di.material_type='组合件' <if test="depotId != null"> and di.depot_id=#{depotId}</if> then di.stock_cost else 0 end) as disAssemOutTotal
         from
         jsh_depot_head dh
         left join jsh_depot_item di on dh.id=di.header_id and ifnull(di.delete_flag,'0') !='1'
@@ -346,6 +406,30 @@
         sum(case when dh.sub_type='组装单' and di.material_type='普通子件' <include refid="depotParam" /> then di.basic_number else 0 end) as assemOutTotal,
         sum(case when dh.sub_type='拆卸单' and di.material_type='普通子件' <include refid="depotParam" /> then di.basic_number else 0 end) as disAssemInTotal,
         sum(case when dh.sub_type='拆卸单' and di.material_type='组合件' <include refid="depotParam" /> then di.basic_number else 0 end) as disAssemOutTotal
+        from
+        jsh_depot_head dh
+        left join jsh_depot_item di on dh.id=di.header_id and ifnull(di.delete_flag,'0') !='1'
+        where 1=1
+        and ifnull(dh.delete_flag,'0') !='1'
+        and di.material_id=#{mId}
+        <if test="beginTime != null">
+            and dh.oper_time &gt;= #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and dh.oper_time &lt;= #{endTime}
+        </if>
+    </select>
+
+    <select id="getStockCostByParamWithDepotList" resultMap="stockMap">
+        select
+        sum(case when dh.type='入库' <include refid="depotParam" /> then di.stock_cost else 0 end) as inTotal,
+        sum(case when dh.type='出库' and dh.sub_type!='调拨' <include refid="depotParam" /> then di.stock_cost else 0 end) as outTotal,
+        sum(case when dh.sub_type='调拨' <include refid="anotherDepotParam" /> then di.stock_cost else 0 end) as transfInTotal,
+        sum(case when dh.sub_type='调拨' <include refid="depotParam" /> then di.stock_cost else 0 end) as transfOutTotal,
+        sum(case when dh.sub_type='组装单' and di.material_type='组合件' <include refid="depotParam" /> then di.stock_cost else 0 end) as assemInTotal,
+        sum(case when dh.sub_type='组装单' and di.material_type='普通子件' <include refid="depotParam" /> then di.stock_cost else 0 end) as assemOutTotal,
+        sum(case when dh.sub_type='拆卸单' and di.material_type='普通子件' <include refid="depotParam" /> then di.stock_cost else 0 end) as disAssemInTotal,
+        sum(case when dh.sub_type='拆卸单' and di.material_type='组合件' <include refid="depotParam" /> then di.stock_cost else 0 end) as disAssemOutTotal
         from
         jsh_depot_head dh
         left join jsh_depot_item di on dh.id=di.header_id and ifnull(di.delete_flag,'0') !='1'

@@ -414,6 +414,60 @@ public class DepotItemService {
                 if (StringUtil.isExist(rowObj.get("allPrice"))) {
                     depotItem.setAllPrice(rowObj.getBigDecimal("allPrice"));
                 }
+
+                // 给出入库单据补充库存成本信息
+                if (StringUtil.isExist(rowObj.get("depotId"))) {
+                    Long mid = materialExtend.getMaterialId();
+                    Long did = rowObj.getLong("depotId");
+                    // 修正当前库存数据 - 调试用
+                    MaterialCurrentStockExample example0 = new MaterialCurrentStockExample();
+                    example0.createCriteria().andMaterialIdEqualTo(mid).andDepotIdEqualTo(did)
+                            .andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
+                    List<MaterialCurrentStock> list0 = materialCurrentStockMapper.selectByExample(example0);
+                    if (list0.size() > 0)
+                    {
+                        MaterialCurrentStock materialCurrentStock = list0.get(0);
+
+                        BigDecimal current_number = materialCurrentStock.getCurrentNumber();
+                        BigDecimal current_cost = materialCurrentStock.getCurrentCost() == null ? BigDecimal.ZERO : materialCurrentStock.getCurrentCost();
+                        if (current_number.compareTo(BigDecimal.ZERO) != 0 && current_cost.compareTo(BigDecimal.ZERO) == 0)
+                        {
+                            // 获取 - 指定商品、指定仓库 - 初始库存成本金额 material_initial_stock.cost 此数据来自用户输入，如未输入则默认为0
+                            // 获取 - 指定商品、指定仓库 -
+                            updateCurrentStockFun(mid, did);
+                        }
+                    }
+
+                    // 补充入库商品的库存成本金额、成本单价
+                    if(BusinessConstants.DEPOTHEAD_TYPE_IN.equals(depotHead.getType()))
+                    {
+                        if (StringUtil.isExist(rowObj.get("unitPrice"))) {
+                            depotItem.setStockPrice(rowObj.getBigDecimal("stockPrice"));
+                        }
+                        if (StringUtil.isExist(rowObj.get("taxUnitPrice"))) {
+                            depotItem.setStockCost(rowObj.getBigDecimal("stockCost"));
+                        }
+                    }
+                    // 补充出库商品的库存成本金额、成本单价
+                    else if (BusinessConstants.DEPOTHEAD_TYPE_OUT.equals(depotHead.getType()))
+                    {
+                        // 从material_current_stock获取current_number、current_cost、current_price
+                        // depot_item.stock_price <= current_price
+                        // depot_item.stock_cost = current_price * unitPrice
+                        MaterialCurrentStockExample example = new MaterialCurrentStockExample();
+                        example.createCriteria().andMaterialIdEqualTo(materialExtend.getMaterialId()).andDepotIdEqualTo(rowObj.getLong("depotId"))
+                                .andDeleteFlagNotEqualTo(BusinessConstants.DELETE_FLAG_DELETED);
+                        List<MaterialCurrentStock> list = materialCurrentStockMapper.selectByExample(example);
+                        if (list.size() > 0)
+                        {
+                            MaterialCurrentStock materialCurrentStock = list.get(0);
+
+                            depotItem.setStockPrice(materialCurrentStock.getCurrentPrice());
+                            depotItem.setStockCost(materialCurrentStock.getCurrentPrice().multiply(rowObj.getBigDecimal("unitPrice")));
+                        }
+                    }
+                }
+
                 if (StringUtil.isExist(rowObj.get("depotId"))) {
                     depotItem.setDepotId(rowObj.getLong("depotId"));
                 } else {
@@ -475,8 +529,10 @@ public class DepotItemService {
                         }
                     }
                 }
-                this.insertDepotItemWithObj(depotItem);
+                int item_id = this.insertDepotItemWithObj(depotItem);
+                depotItem.setId((long) item_id);
                 //更新当前库存
+                logger.info("depot item ", depotItem);
                 updateCurrentStock(depotItem);
             }
             //如果关联单据号非空则更新订单的状态,单据类型：采购入库单或销售出库单
@@ -579,6 +635,32 @@ public class DepotItemService {
     }
 
     /**
+     * 库存成本统计-sku
+     * @param depotId
+     * @param meId
+     * @param beginTime
+     * @param endTime
+     * @return
+     */
+    public BigDecimal getSkuStockCostByParam(Long depotId, Long meId, String beginTime, String endTime){
+        DepotItemVo4Stock stockObj = depotItemMapperEx.getSkuStockCostByParam(depotId, meId, beginTime, endTime);
+        BigDecimal stockSum = BigDecimal.ZERO;
+        if(stockObj!=null) {
+            BigDecimal inTotal = stockObj.getInTotal();
+            BigDecimal transfInTotal = stockObj.getTransfInTotal();
+            BigDecimal assemInTotal = stockObj.getAssemInTotal();
+            BigDecimal disAssemInTotal = stockObj.getDisAssemInTotal();
+            BigDecimal outTotal = stockObj.getOutTotal();
+            BigDecimal transfOutTotal = stockObj.getTransfOutTotal();
+            BigDecimal assemOutTotal = stockObj.getAssemOutTotal();
+            BigDecimal disAssemOutTotal = stockObj.getDisAssemOutTotal();
+            stockSum = inTotal.add(transfInTotal).add(assemInTotal).add(disAssemInTotal)
+                    .subtract(outTotal).subtract(transfOutTotal).subtract(assemOutTotal).subtract(disAssemOutTotal);
+        }
+        return stockSum;
+    }
+
+    /**
      * 库存统计-单仓库
      * @param depotId
      * @param mId
@@ -592,6 +674,22 @@ public class DepotItemService {
             depotList.add(depotId);
         }
         return getStockByParamWithDepotList(depotList, mId, beginTime, endTime);
+    }
+
+    /**
+     * 库存成本统计-单仓库
+     * @param depotId
+     * @param mId
+     * @param beginTime
+     * @param endTime
+     * @return
+     */
+    public BigDecimal getStockCostByParam(Long depotId, Long mId, String beginTime, String endTime){
+        List<Long> depotList = new ArrayList<>();
+        if(depotId != null) {
+            depotList.add(depotId);
+        }
+        return getStockCostByParamWithDepotList(depotList, mId, beginTime, endTime);
     }
 
     /**
@@ -622,6 +720,37 @@ public class DepotItemService {
                     .subtract(outTotal).subtract(transfOutTotal).subtract(assemOutTotal).subtract(disAssemOutTotal);
         }
         return initStock.add(stockCheckSum).add(stockSum);
+    }
+
+    /**
+     * 库存成本统计-多仓库
+     * @param depotList
+     * @param mId
+     * @param beginTime
+     * @param endTime
+     * @return
+     */
+    public BigDecimal getStockCostByParamWithDepotList(List<Long> depotList, Long mId, String beginTime, String endTime){
+        //初始库存
+        BigDecimal initStockCost = materialService.getInitStockCostByMidAndDepotList(depotList, mId);
+
+        //盘点复盘后数量的变动
+        BigDecimal stockCheckSum = depotItemMapperEx.getStockCostCheckSumByDepotList(depotList, mId, beginTime, endTime);
+        DepotItemVo4Stock stockObj = depotItemMapperEx.getStockCostByParamWithDepotList(depotList, mId, beginTime, endTime);
+        BigDecimal stockSum = BigDecimal.ZERO;
+        if(stockObj!=null) {
+            BigDecimal inTotal = stockObj.getInTotal();
+            BigDecimal transfInTotal = stockObj.getTransfInTotal();
+            BigDecimal assemInTotal = stockObj.getAssemInTotal();
+            BigDecimal disAssemInTotal = stockObj.getDisAssemInTotal();
+            BigDecimal outTotal = stockObj.getOutTotal();
+            BigDecimal transfOutTotal = stockObj.getTransfOutTotal();
+            BigDecimal assemOutTotal = stockObj.getAssemOutTotal();
+            BigDecimal disAssemOutTotal = stockObj.getDisAssemOutTotal();
+            stockSum = inTotal.add(transfInTotal).add(assemInTotal).add(disAssemInTotal)
+                    .subtract(outTotal).subtract(transfOutTotal).subtract(assemOutTotal).subtract(disAssemOutTotal);
+        }
+        return initStockCost.add(stockCheckSum).add(stockSum);
     }
 
     /**
@@ -675,7 +804,7 @@ public class DepotItemService {
     }
 
     /**
-     * 根据商品和仓库来更新当前库存
+     * 根据商品和仓库来更新当前库存 - 按正常逻辑，此处也需要处理库存成本
      * @param mId
      * @param dId
      */
@@ -688,7 +817,14 @@ public class DepotItemService {
             MaterialCurrentStock materialCurrentStock = new MaterialCurrentStock();
             materialCurrentStock.setMaterialId(mId);
             materialCurrentStock.setDepotId(dId);
-            materialCurrentStock.setCurrentNumber(getStockByParam(dId,mId,null,null));
+            BigDecimal stock = getStockByParam(dId,mId,null,null);
+            materialCurrentStock.setCurrentNumber(stock);
+            BigDecimal cost = getStockCostByParam(dId,mId,null,null);
+            materialCurrentStock.setCurrentCost(cost);
+            if (stock.compareTo(BigDecimal.ZERO) != 0)
+            {
+                materialCurrentStock.setCurrentPrice(cost.divide(stock, BigDecimal.ROUND_HALF_DOWN));
+            }
             if(list!=null && list.size()>0) {
                 Long mcsId = list.get(0).getId();
                 materialCurrentStock.setId(mcsId);
