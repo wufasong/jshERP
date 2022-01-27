@@ -263,7 +263,7 @@
             { title: '多属性', key: 'sku', width: '4%', type: FormTypes.normal },
             { title: '原数量', key: 'preNumber', width: '4%', type: FormTypes.normal },
             { title: '已入库', key: 'finishNumber', width: '4%', type: FormTypes.normal },
-            { title: '数量', key: 'operNumber', width: '4%', type: FormTypes.inputNumber, statistics: true,
+            { title: '数量', key: 'operNumber', width: '5%', type: FormTypes.inputNumber, statistics: true,
               validateRules: [{ required: true, message: '${title}不能为空' }]
             },
             { title: '单价', key: 'unitPrice', width: '4%', type: FormTypes.inputNumber},
@@ -271,6 +271,8 @@
             { title: '税率', key: 'taxRate', width: '3%', type: FormTypes.inputNumber,placeholder: '%'},
             { title: '税额', key: 'taxMoney', width: '5%', type: FormTypes.inputNumber, readonly: true, statistics: true },
             { title: '价税合计', key: 'taxLastMoney', width: '5%', type: FormTypes.inputNumber, statistics: true },
+            { title: '库存单价', key: 'stockPrice', width: '5%', type: FormTypes.inputNumber },
+            { title: '库存成本', key: 'stockCost', width: '5%', type: FormTypes.inputNumber, statistics: true },
             { title: '备注', key: 'remark', width: '5%', type: FormTypes.input }
           ]
         },

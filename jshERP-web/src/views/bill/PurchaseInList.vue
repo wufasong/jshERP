@@ -174,7 +174,7 @@
         // 表头
         columns: [
           { title: '供应商', dataIndex: 'organName',width:120, ellipsis:true},
-          { title: '单据编号', dataIndex: 'number',width:160,
+          { title: '单据编号', dataIndex: 'number',width:140,
             customRender:function (text,record,index) {
               if(record.linkNumber) {
                 return text + "[订]";
@@ -204,8 +204,8 @@
               return needInMoney? needInMoney.toFixed(2):''
             }
           },
-          { title: '付款', dataIndex: 'changeAmount',width:60},
-          { title: '欠款', dataIndex: 'debt',width:60,
+          { title: '付款', dataIndex: 'changeAmount',width:70},
+          { title: '欠款', dataIndex: 'debt',width:70,
             customRender:function (text,record,index) {
               let debt = record.discountLastMoney + record.otherMoney - record.changeAmount
               return debt? debt.toFixed(2):''
