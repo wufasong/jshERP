@@ -441,11 +441,12 @@ public class DepotItemService {
                     // 补充入库商品的库存成本金额、成本单价
                     if(BusinessConstants.DEPOTHEAD_TYPE_IN.equals(depotHead.getType()))
                     {
+                        // TODO: 多单位时，库存单价按说应该采用
                         if (StringUtil.isExist(rowObj.get("unitPrice"))) {
-                            depotItem.setStockPrice(rowObj.getBigDecimal("stockPrice"));
+                            depotItem.setStockPrice(rowObj.getBigDecimal("unitPrice"));
                         }
-                        if (StringUtil.isExist(rowObj.get("taxUnitPrice"))) {
-                            depotItem.setStockCost(rowObj.getBigDecimal("stockCost"));
+                        if (StringUtil.isExist(rowObj.get("allPrice"))) {
+                            depotItem.setStockCost(rowObj.getBigDecimal("allPrice"));
                         }
                     }
                     // 补充出库商品的库存成本金额、成本单价
@@ -461,9 +462,9 @@ public class DepotItemService {
                         if (list.size() > 0)
                         {
                             MaterialCurrentStock materialCurrentStock = list.get(0);
-
+                            // 一律采用基本单位计算库存
                             depotItem.setStockPrice(materialCurrentStock.getCurrentPrice());
-                            depotItem.setStockCost(materialCurrentStock.getCurrentPrice().multiply(rowObj.getBigDecimal("unitPrice")));
+                            depotItem.setStockCost(materialCurrentStock.getCurrentPrice().multiply(depotItem.getBasicNumber()));
                         }
                     }
                 }
@@ -529,10 +530,9 @@ public class DepotItemService {
                         }
                     }
                 }
-                int item_id = this.insertDepotItemWithObj(depotItem);
-                depotItem.setId((long) item_id);
+                this.insertDepotItemWithObj(depotItem);
                 //更新当前库存
-                logger.info("depot item ", depotItem);
+                logger.info("DepotItemService", depotItem);
                 updateCurrentStock(depotItem);
             }
             //如果关联单据号非空则更新订单的状态,单据类型：采购入库单或销售出库单
@@ -797,9 +797,9 @@ public class DepotItemService {
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void updateCurrentStock(DepotItem depotItem){
-        updateCurrentStockInfoByDepotItem(depotItem, false);
+        updateCurrentStockFun(depotItem.getMaterialId(), depotItem.getDepotId());
         if(depotItem.getAnotherDepotId()!=null){
-            updateCurrentStockInfoByDepotItem(depotItem, true);
+            updateCurrentStockFun(depotItem.getMaterialId(), depotItem.getDepotId());
         }
     }
 
@@ -858,24 +858,24 @@ public class DepotItemService {
             materialCurrentStock.setCurrentNumber(current_number);
             if(list!=null && list.size()>0) {
                 Long mcsId = list.get(0).getId();
-                BigDecimal oldCost = list.get(0).getCurrentCost();
                 materialCurrentStock.setId(mcsId);
-                BigDecimal currentCost = new BigDecimal(0);
-                DepotHead depotHead = depotHeadMapper.selectByPrimaryKey(depotItem.getId());
-                if (depotHead.getType().compareTo(new String("出库")) == 0)
-                {
-                    materialCurrentStock.setCurrentCost(oldCost.subtract(depotItem.getStockCost()));
-                    materialCurrentStock.setCurrentPrice(oldCost.subtract(depotItem.getStockCost()).divide(current_number, BigDecimal.ROUND_HALF_DOWN));
-                }
-                else if (depotHead.getType().compareTo(new String("入库")) == 0)
-                {
-                    materialCurrentStock.setCurrentCost(oldCost.add(depotItem.getStockCost()));
-                    materialCurrentStock.setCurrentPrice(oldCost.add(depotItem.getStockCost()).divide(current_number, BigDecimal.ROUND_HALF_DOWN));
-                }
+//                BigDecimal oldCost = list.get(0).getCurrentCost();
+//                BigDecimal currentCost = new BigDecimal(0);
+//                DepotHead depotHead = depotHeadMapper.selectByPrimaryKey(depotItem.getId());
+//                if (depotHead.getType().compareTo(new String("出库")) == 0)
+//                {
+//                    materialCurrentStock.setCurrentCost(oldCost.subtract(depotItem.getStockCost()));
+//                    materialCurrentStock.setCurrentPrice(oldCost.subtract(depotItem.getStockCost()).divide(current_number, BigDecimal.ROUND_HALF_DOWN));
+//                }
+//                else if (depotHead.getType().compareTo(new String("入库")) == 0)
+//                {
+//                    materialCurrentStock.setCurrentCost(oldCost.add(depotItem.getStockCost()));
+//                    materialCurrentStock.setCurrentPrice(oldCost.add(depotItem.getStockCost()).divide(current_number, BigDecimal.ROUND_HALF_DOWN));
+//                }
                 materialCurrentStockMapper.updateByPrimaryKeySelective(materialCurrentStock);
             } else {
-                materialCurrentStock.setCurrentCost(depotItem.getStockCost());
-                materialCurrentStock.setCurrentCost(depotItem.getStockPrice());
+                materialCurrentStock.setCurrentCost(depotItem.getAllPrice());
+                materialCurrentStock.setCurrentCost(depotItem.getUnitPrice());
                 materialCurrentStockMapper.insertSelective(materialCurrentStock);
             }
         }
