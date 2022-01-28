@@ -184,6 +184,57 @@
         and ifnull(dh.delete_Flag,'0') !='1') tb
     </select>
 
+    <select id="selectByConditionDepotHeadGroupBySup" parameterType="com.jsh.erp.datasource.entities.DepotHeadExample" resultMap="ResultMapEx">
+        select
+        dh.organId organId, s.supplier OrganName,
+        ifnull(sum(total_price),0) as totalPrice,
+        ifnull(sum(discount_money),0) as discountMoney,
+        ifnull(sum(discount_last_money),0) as discountLastMoney,
+        ifnull(sum(other_money),0) as otherMoney,
+        ifnull(sum(change_amount),0) as changeAmount,
+        ifnull(sum(total_price),0) + ifnull(sum(other_money),0) - ifnull(sum(discount_money),0) as needInMoney,
+        ifnull(sum(total_price),0) + ifnull(sum(other_money),0) - ifnull(sum(discount_money),0) - ifnull(sum(change_amount),0) as periodDebt,
+        from jsh_depot_head dh
+        left join jsh_supplier s on dh.organ_id=s.id and ifnull(s.delete_Flag,'0') !='1'
+        where 1=1
+        <if test="depotList.size()>0">
+            and di.depot_id in
+            <foreach collection="depotList" item="item" index="index" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="type != null">
+            and dh.type=#{type}
+        </if>
+        <if test="subType != null">
+            and dh.sub_type=#{subType}
+        </if>
+        <if test="statusArray != null and statusArray !=''">
+            and dh.status in (
+            <foreach collection="statusArray" item="status" separator=",">
+                #{status}
+            </foreach>
+            )
+        </if>
+        <if test="beginTime != null">
+            and dh.oper_time >= #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and dh.oper_time &lt;= #{endTime}
+        </if>
+        and ifnull(dh.delete_flag,'0') !='1'
+        group by dh.organId
+        order by dh.organId
+    </select>
+
+    <select id="getPurchaseAsSupTotalDebt" resultType="java.math.BigDecimal">
+        select ifnull(sum(total_price),0) + ifnull(sum(other_money),0) - ifnull(sum(discount_money),0) - ifnull(sum(change_amount),0) as totalDebt
+        from jsh_depot_head
+        where type=#{type} and sub_type = #{subType}
+        and organ_id =#{supplierId} and oper_time &lt;=#{endTime}
+        and ifnull(delete_flag,'0') !='1'
+    </select>
+
     <select id="findMaterialsListByHeaderId" resultType="java.lang.String">
         select group_concat(concat(jsh_material.name,' ',ifnull(jsh_material.standard,''),' ',ifnull(jsh_material.model,''))) as mName
         from jsh_depot_item

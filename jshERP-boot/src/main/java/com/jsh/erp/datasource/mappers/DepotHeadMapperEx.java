@@ -1,6 +1,7 @@
 package com.jsh.erp.datasource.mappers;
 
 import com.jsh.erp.datasource.entities.DepotHead;
+import com.jsh.erp.datasource.entities.PurchaseAs;
 import com.jsh.erp.datasource.vo.DepotHeadVo4InDetail;
 import com.jsh.erp.datasource.vo.DepotHeadVo4InOutMCount;
 import com.jsh.erp.datasource.vo.DepotHeadVo4List;
@@ -49,6 +50,17 @@ public interface DepotHeadMapperEx {
             @Param("creator") Long creator,
             @Param("depotId") Long depotId,
             @Param("depotArray") String[] depotArray);
+
+    List<PurchaseAs> selectByConditionDepotHeadGroupBySup(
+            @Param("type") String type,
+            @Param("subType") String subType,
+            @Param("statusArray") String[] statusArray,
+            @Param("beginTime") String beginTime,
+            @Param("endTime") String endTime,
+            @Param("depotList") List<Long> depotList);
+
+    BigDecimal getPurchaseAsSupTotalDebt(
+            @Param("supplier") Long supplier);
 
     String findMaterialsListByHeaderId(
             @Param("id") Long id);

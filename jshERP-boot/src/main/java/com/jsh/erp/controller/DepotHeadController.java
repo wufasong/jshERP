@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.constants.ExceptionConstants;
-import com.jsh.erp.datasource.entities.DepotHead;
+import com.jsh.erp.datasource.entities.PurchaseAs;
 import com.jsh.erp.datasource.entities.DepotHeadVo4Body;
 import com.jsh.erp.datasource.entities.Supplier;
 import com.jsh.erp.datasource.vo.DepotHeadVo4InDetail;
@@ -197,6 +197,45 @@ public class DepotHeadController {
                     resList.add(dhc);
                 }
             }
+            map.put("rows", resList);
+            res.code = 200;
+            res.data = map;
+        } catch(Exception e){
+            e.printStackTrace();
+            res.code = 500;
+            res.data = "获取数据失败";
+        }
+        return res;
+    }
+
+    /**
+     * 采购分析接口
+     * @param beginTime
+     * @param endTime
+     * @param request
+     * @return
+     */
+    @GetMapping(value = "/getPurchaseAs")
+    @ApiOperation(value = "采购分析接口")
+    public BaseResponseInfo getPurchaseAs(@RequestParam("beginTime") String beginTime,
+                                         @RequestParam("endTime") String endTime,
+                                         HttpServletRequest request)throws Exception {
+        BaseResponseInfo res = new BaseResponseInfo();
+        Map<String, Object> map = new HashMap<String, Object>();
+        try {
+            //获取当前用户有权限的仓库
+            List<Long> depotList = new ArrayList<>();
+            JSONArray depotArr = depotService.findDepotByCurrentUser();
+            for(Object obj: depotArr) {
+                JSONObject object = JSONObject.parseObject(obj.toString());
+                depotList.add(object.getLong("id"));
+            }
+
+            beginTime = Tools.parseDayToTime(beginTime,BusinessConstants.DAY_FIRST_TIME);
+            endTime = Tools.parseDayToTime(endTime,BusinessConstants.DAY_LAST_TIME);
+
+            List<PurchaseAs> resList = depotHeadService.getPurchaseAs(beginTime, endTime, depotList);
+
             map.put("rows", resList);
             res.code = 200;
             res.data = map;
