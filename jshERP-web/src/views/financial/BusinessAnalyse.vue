@@ -6,21 +6,19 @@
         <a-form layout="inline" @keyup.enter.native="searchQuery">
           <a-row :gutter="24">
             <a-col :md="6" :sm="24">
-              <a-form-item label="日期" :labelCol="labelCol" :wrapperCol="wrapperCol">
-                <a-range-picker
+              <a-form-item label="日期">
+                <a-month-picker
+                  placeholder="请选择月份"
+                  :default-value="moment(currentMonth, monthFormat)"
                   style="width: 100%"
-                  v-model="queryParam.createTimeRange"
-                  format="YYYY-MM-DD"
-                  :placeholder="['开始时间', '结束时间']"
-                  @change="onDateChange"
-                  @ok="onDateOk"
+                  :format="monthFormat"
+                  @change="onChange"
                 />
               </a-form-item>
             </a-col>
             <span style="float: left; overflow: hidden" class="table-page-search-submitButtons">
               <a-col :md="6" :sm="24">
                 <a-button type="primary" @click="searchQuery">查询</a-button>
-                <a-button style="margin-left: 8px" @click="searchReset">重置</a-button>
               </a-col>
             </span>
           </a-row>
@@ -72,6 +70,7 @@
 <script>
 import { FinancialListMixin } from './mixins/FinancialListMixin'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
+import moment from 'moment'
 const columns = [
   [
     {
@@ -91,12 +90,12 @@ const columns = [
     {
       title: '采购综合分析',
       children: [
-        { title: '供应商名称', dataIndex: 'one', key: 'one' },
-        { title: '采购金额', dataIndex: 'two', key: 'two' },
-        { title: '付款金额', dataIndex: 'three', key: 'three' },
-        { title: '优惠金额 ', dataIndex: 'four', key: 'four' },
-        { title: '当期欠款', dataIndex: 'five', key: 'five' },
-        { title: '总欠款', dataIndex: 'six', key: 'six' },
+        { title: '供应商名称', dataIndex: 'organName', key: 'organName' },
+        { title: '采购金额', dataIndex: 'totalPrice', key: 'totalPrice' },
+        { title: '付款金额', dataIndex: 'changeAmount', key: 'changeAmount' },
+        { title: '优惠金额 ', dataIndex: 'discountMoney', key: 'discountMoney' },
+        { title: '当期欠款', dataIndex: 'periodDebt', key: 'periodDebt' },
+        { title: '总欠款', dataIndex: 'totalDebt', key: 'totalDebt' },
       ],
     },
   ],
@@ -114,16 +113,23 @@ export default {
   mixins: [JeecgListMixin, FinancialListMixin],
   data() {
     return {
+      monthFormat: 'YYYY-MM',
+      currentMonth: moment().format('YYYY-MM'),
+      queryParam: {
+        beginTime: moment().format('YYYY-MM') + '-01',
+        endTime: moment().format('YYYY-MM') + '-' + this.getEndTime(new Date(moment().format())),
+      },
       // 表头
       columnList: columns,
+      columns: columns[0][0].children.concat(columns[1][0].children).concat(columns[2][0].children),
       dataSource: [
         {
-          one: 'Leo',
-          two: '120亿',
-          three: '10亿',
-          four: '50亿',
-          five: '100万',
-          six: '1.1亿',
+          organName: 'Leo',
+          totalPrice: '120亿',
+          changeAmount: '10亿',
+          discountMoney: '50亿',
+          periodDebt: '100万',
+          totalDebt: '1.1亿',
           ones: '12.8亿',
           twos: '12.8亿',
           threes: '12.8亿',
@@ -136,12 +142,30 @@ export default {
         },
       ],
       url: {
-        list: '1',
+        list: '/depotHead/getPurchaseAs',
       },
     }
   },
-  created() {},
+  created() {
+    console.log(this.columns)
+  },
   methods: {
+    moment,
+    onChange: function (value, dateString) {
+      this.queryParam.endTime = dateString + '-' + this.getEndTime(new Date(value.format()))
+      this.queryParam.beginTime = dateString + '-01'
+      console.log(this.queryParam)
+    },
+    getEndTime(d) {
+      return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()
+    },
+    searchQuery() {
+      if (this.queryParam.beginTime == '') {
+        this.$message.warning('请选择月份！')
+      } else {
+        this.loadData(1)
+      }
+    },
     handleTableChange() {},
   },
 }
