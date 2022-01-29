@@ -142,7 +142,7 @@ export default {
         },
       ],
       url: {
-        list: '/depotHead/getPurchaseAs',
+        list: '/analyze/list',
       },
     }
   },
