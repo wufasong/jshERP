@@ -8,23 +8,21 @@ public class PurchaseAs {
 
     private String organName;
 
-    private BigDecimal needInMoney;    // 采购金额 totalPrice + otherMoney - discountMoney
+    private BigDecimal totalPrice;          // 商品总价
 
-    private BigDecimal changeAmount;   // 付款金额（已付部分）
-
-    private BigDecimal periodDebt;     // 当期欠款 needInMoney - changeAmount
-
-    private BigDecimal totalDebt;      // 总欠款 - 从开始计算的所有欠款
-
-    // private BigDecimal backAmount;      // 找零金额
-
-    private BigDecimal totalPrice;      // 商品总价
-
-    private BigDecimal discountMoney;   // 优惠金额
+    private BigDecimal discountMoney;       // *优惠金额
 
     private BigDecimal discountLastMoney;   // 优惠后金额
 
-    private BigDecimal otherMoney;       // 其它费用
+    private BigDecimal otherMoney;          // 其它费用
+
+    private BigDecimal needInMoney;         // *采购金额 totalPrice + otherMoney - discountMoney
+
+    private BigDecimal changeAmount;        // *付款金额（已付部分）
+
+    private BigDecimal periodDebt;          // *当期欠款 needInMoney - changeAmount
+
+    private BigDecimal totalDebt;           // *总欠款 - 从开始计算的所有欠款
 
     public Long getOrganId() {
         return organId;
@@ -58,14 +56,6 @@ public class PurchaseAs {
         this.changeAmount = changeAmount;
     }
 
-//    public BigDecimal getBackAmount() {
-//        return backAmount;
-//    }
-//
-//    public void setBackAmount(BigDecimal backAmount) {
-//        this.backAmount = backAmount;
-//    }
-//
     public BigDecimal getPeriodDebt() {
         return periodDebt;
     }
