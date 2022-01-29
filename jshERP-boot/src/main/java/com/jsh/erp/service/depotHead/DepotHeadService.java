@@ -168,33 +168,6 @@ public class DepotHeadService {
     }
 
     /**
-     * 采购分析
-     * 获取指定时间段（月份）- 供应商、采购金额、付款金额、优惠金额、当期欠款
-     * @param beginTime
-     * @param endTime
-     * @return
-     * @throws Exception
-     */
-    public List<PurchaseAs> getPurchaseAs(String beginTime, String endTime, List<Long> depotList) throws Exception {
-        List<PurchaseAs> resList = new ArrayList<>();
-        try{
-            beginTime = Tools.parseDayToTime(beginTime,BusinessConstants.DAY_FIRST_TIME);
-            endTime = Tools.parseDayToTime(endTime,BusinessConstants.DAY_LAST_TIME);
-            List<PurchaseAs> list=depotHeadMapperEx.selectByConditionDepotHeadGroupBySup("入库", "采购", null, beginTime, endTime, depotList);
-            if (null != list) {
-                for (PurchaseAs dh : list) {
-                    dh.setTotalDebt(depotHeadMapperEx.getPurchaseAsSupTotalDebt(dh.getOrganId()));
-
-                    resList.add(dh);
-                }
-            }
-        }catch(Exception e){
-            JshException.readFail(logger, e);
-        }
-        return resList;
-    }
-
-    /**
      * 根据单据类型获取仓库数组
      * @param subType
      * @return

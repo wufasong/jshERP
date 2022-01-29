@@ -12,6 +12,21 @@
         <result column="address" jdbcType="VARCHAR" property="address" />
     </resultMap>
 
+    <resultMap id="ResultPurchaseAsMap" type="com.jsh.erp.datasource.vo.PurchaseAs">
+        <result column="organId" jdbcType="BIGINT" property="organId" />
+        <result column="OrganName" jdbcType="VARCHAR" property="organName" />
+
+        <result column="totalPrice" jdbcType="DECIMAL" property="totalPrice" />
+        <result column="otherMoney" jdbcType="DECIMAL" property="otherMoney" />
+        <result column="discountMoney" jdbcType="DECIMAL" property="discountMoney" />
+        <result column="discountLastMoney" jdbcType="DECIMAL" property="discountLastMoney" />
+        <result column="changeAmount" jdbcType="DECIMAL" property="changeAmount" />
+
+        <result column="needInMoney" jdbcType="DECIMAL" property="needInMoney" />
+        <result column="periodDebt" jdbcType="DECIMAL" property="periodDebt" />
+        <result column="totalDebt" jdbcType="DECIMAL" property="totalDebt" />
+    </resultMap>
+
     <resultMap id="ResultWithInfoExMap" type="com.jsh.erp.datasource.vo.DepotHeadVo4InDetail">
         <result column="Number" jdbcType="VARCHAR" property="Number" />
         <result column="bar_code" jdbcType="VARCHAR" property="barCode" />
@@ -184,18 +199,19 @@
         and ifnull(dh.delete_Flag,'0') !='1') tb
     </select>
 
-    <select id="selectByConditionDepotHeadGroupBySup" parameterType="com.jsh.erp.datasource.entities.DepotHeadExample" resultMap="ResultMapEx">
+    <select id="selectByConditionDepotHeadGroupBySup" parameterType="com.jsh.erp.datasource.entities.DepotHeadExample" resultMap="ResultPurchaseAsMap">
         select
-        dh.organId organId, s.supplier OrganName,
+        dh.organ_id organId, s.supplier OrganName,
         ifnull(sum(total_price),0) as totalPrice,
         ifnull(sum(discount_money),0) as discountMoney,
         ifnull(sum(discount_last_money),0) as discountLastMoney,
         ifnull(sum(other_money),0) as otherMoney,
         ifnull(sum(change_amount),0) as changeAmount,
         ifnull(sum(total_price),0) + ifnull(sum(other_money),0) - ifnull(sum(discount_money),0) as needInMoney,
-        ifnull(sum(total_price),0) + ifnull(sum(other_money),0) - ifnull(sum(discount_money),0) - ifnull(sum(change_amount),0) as periodDebt,
+        ifnull(sum(total_price),0) + ifnull(sum(other_money),0) - ifnull(sum(discount_money),0) - ifnull(sum(change_amount),0) as periodDebt
         from jsh_depot_head dh
         left join jsh_supplier s on dh.organ_id=s.id and ifnull(s.delete_Flag,'0') !='1'
+        left join jsh_depot_item di on dh.Id = di.header_id and ifnull(di.delete_flag,'0') !='1'
         where 1=1
         <if test="depotList.size()>0">
             and di.depot_id in
@@ -223,16 +239,38 @@
             and dh.oper_time &lt;= #{endTime}
         </if>
         and ifnull(dh.delete_flag,'0') !='1'
-        group by dh.organId
-        order by dh.organId
+        group by dh.organ_id
+        order by dh.organ_id
     </select>
 
     <select id="getPurchaseAsSupTotalDebt" resultType="java.math.BigDecimal">
         select ifnull(sum(total_price),0) + ifnull(sum(other_money),0) - ifnull(sum(discount_money),0) - ifnull(sum(change_amount),0) as totalDebt
-        from jsh_depot_head
-        where type=#{type} and sub_type = #{subType}
-        and organ_id =#{supplierId} and oper_time &lt;=#{endTime}
-        and ifnull(delete_flag,'0') !='1'
+        from jsh_depot_head dh
+        left join jsh_supplier s on dh.organ_id=s.id and ifnull(s.delete_Flag,'0') !='1'
+        left join jsh_depot_item di on dh.Id = di.header_id and ifnull(di.delete_flag,'0') !='1'
+        where 1=1
+        <if test="depotList.size()>0">
+            and di.depot_id in
+            <foreach collection="depotList" item="item" index="index" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="type != null">
+            and dh.type=#{type}
+        </if>
+        <if test="subType != null">
+            and dh.sub_type=#{subType}
+        </if>
+        <if test="statusArray != null and statusArray !=''">
+            and dh.status in (
+            <foreach collection="statusArray" item="status" separator=",">
+                #{status}
+            </foreach>
+            )
+        </if>
+        and dh.oper_time &lt;=#{endTime}
+        and dh.organ_id =#{supplier}
+        and ifnull(dh.delete_flag,'0') !='1'
     </select>
 
     <select id="findMaterialsListByHeaderId" resultType="java.lang.String">

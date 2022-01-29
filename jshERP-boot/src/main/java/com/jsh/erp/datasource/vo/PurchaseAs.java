@@ -1,4 +1,4 @@
-package com.jsh.erp.datasource.entities;
+package com.jsh.erp.datasource.vo;
 
 import java.math.BigDecimal;
 
