@@ -50,6 +50,13 @@ public class AnalyzeComponent implements ICommonQuery {
 //        return depotHeadService.select(type, subType, roleType, status, number, linkNumber, beginTime, endTime, materialParam,
 //                organId, creator, depotId, QueryUtils.offset(map), QueryUtils.rows(map));
 
+        String flag = StringUtil.getInfo(search, "as");
+
+        if (flag != null && flag.compareTo("sale") == 0)
+        {
+            return analyzeService.getSaleAs(beginTime, endTime, depotId);
+        }
+
         return analyzeService.getPurchaseAs(beginTime, endTime, depotId);
     }
 

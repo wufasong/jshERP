@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.*;
 import com.jsh.erp.datasource.vo.PurchaseAs;
+import com.jsh.erp.datasource.vo.SaleAs;
 import com.jsh.erp.datasource.mappers.DepotHeadMapperEx;
 import com.jsh.erp.exception.JshException;
 import com.jsh.erp.service.depot.DepotService;
@@ -28,7 +29,7 @@ public class AnalyzeService {
 
     /**
      * 采购分析
-     * 获取指定时间段（月份）- 供应商、采购金额、付款金额、优惠金额、当期欠款
+     * 获取指定时间段（月份）- 供应商、采购金额、付款金额、优惠金额、当期欠款、总欠款
      * @param beginTime
      * @param endTime
      * @param depotId
@@ -66,4 +67,43 @@ public class AnalyzeService {
         return resList;
     }
 
+    /**
+     * 销售分析
+     * 获取指定时间段（月份）- 客户、销售金额、销售回款、优惠金额、当期欠款、总欠款
+     * @param beginTime
+     * @param endTime
+     * @param depotId
+     * @return
+     * @throws Exception
+     */
+    public List<SaleAs> getSaleAs(String beginTime, String endTime, Long depotId) throws Exception {
+        List<SaleAs> resList = new ArrayList<>();
+        try{
+            List<Long> depotList = new ArrayList<>();
+            if(depotId != null) {
+                depotList.add(depotId);
+            } else {
+                //未选择仓库时默认为当前用户有权限的仓库
+                JSONArray depotArr = depotService.findDepotByCurrentUser();
+                for(Object obj: depotArr) {
+                    JSONObject object = JSONObject.parseObject(obj.toString());
+                    depotList.add(object.getLong("id"));
+                }
+            }
+
+            beginTime = Tools.parseDayToTime(beginTime,BusinessConstants.DAY_FIRST_TIME);
+            endTime = Tools.parseDayToTime(endTime,BusinessConstants.DAY_LAST_TIME);
+            List<SaleAs> list=depotHeadMapperEx.selectByConditionDepotHeadGroupByCli("入库", "采购", null, beginTime, endTime, depotList);
+            if (null != list) {
+                for (SaleAs dh : list) {
+                    dh.setTotalDebt(depotHeadMapperEx.getSaleAsCliTotalDebt("入库", "采购", null, endTime, depotList, dh.getClientId()));
+
+                    resList.add(dh);
+                }
+            }
+        }catch(Exception e){
+            JshException.readFail(logger, e);
+        }
+        return resList;
+    }
 }

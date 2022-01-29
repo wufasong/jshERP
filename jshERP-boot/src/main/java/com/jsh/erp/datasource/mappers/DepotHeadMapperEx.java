@@ -1,11 +1,7 @@
 package com.jsh.erp.datasource.mappers;
 
 import com.jsh.erp.datasource.entities.DepotHead;
-import com.jsh.erp.datasource.vo.PurchaseAs;
-import com.jsh.erp.datasource.vo.DepotHeadVo4InDetail;
-import com.jsh.erp.datasource.vo.DepotHeadVo4InOutMCount;
-import com.jsh.erp.datasource.vo.DepotHeadVo4List;
-import com.jsh.erp.datasource.vo.DepotHeadVo4StatementAccount;
+import com.jsh.erp.datasource.vo.*;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
@@ -66,6 +62,22 @@ public interface DepotHeadMapperEx {
             @Param("endTime") String endTime,
             @Param("depotList") List<Long> depotList,
             @Param("supplier") Long supplier);
+
+    List<SaleAs> selectByConditionDepotHeadGroupByCli(
+            @Param("type") String type,
+            @Param("subType") String subType,
+            @Param("statusArray") String[] statusArray,
+            @Param("beginTime") String beginTime,
+            @Param("endTime") String endTime,
+            @Param("depotList") List<Long> depotList);
+
+    BigDecimal getSaleAsCliTotalDebt(
+            @Param("type") String type,
+            @Param("subType") String subType,
+            @Param("statusArray") String[] statusArray,
+            @Param("endTime") String endTime,
+            @Param("depotList") List<Long> depotList,
+            @Param("client") Long client);
 
     String findMaterialsListByHeaderId(
             @Param("id") Long id);
