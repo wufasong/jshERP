@@ -3,6 +3,8 @@ package com.jsh.erp.datasource.mappers;
 import com.jsh.erp.datasource.entities.AccountHead;
 import com.jsh.erp.datasource.entities.AccountHeadExample;
 import com.jsh.erp.datasource.entities.AccountHeadVo4ListEx;
+import com.jsh.erp.datasource.vo.OtherAs;
+import com.jsh.erp.datasource.vo.SaleAs;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
@@ -32,6 +34,13 @@ public interface AccountHeadMapperEx {
             @Param("organId") Long organId,
             @Param("creator") Long creator,
             @Param("handsPersonId") Long handsPersonId);
+
+    List<OtherAs> selectByConditionAccountHeadGroupByItem(
+            @Param("item") Long item,
+            @Param("supplier") Long supplier,
+            @Param("type") String type,
+            @Param("beginTime") String beginTime,
+            @Param("endTime") String endTime);
 
     BigDecimal findAllMoney(
             @Param("supplierId") Integer supplierId,

@@ -4,10 +4,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.*;
+import com.jsh.erp.datasource.mappers.AccountHeadMapperEx;
+import com.jsh.erp.datasource.vo.OtherAs;
 import com.jsh.erp.datasource.vo.PurchaseAs;
 import com.jsh.erp.datasource.vo.SaleAs;
 import com.jsh.erp.datasource.mappers.DepotHeadMapperEx;
 import com.jsh.erp.exception.JshException;
+import com.jsh.erp.service.account.AccountService;
 import com.jsh.erp.service.depot.DepotService;
 import com.jsh.erp.utils.Tools;
 import org.slf4j.Logger;
@@ -24,6 +27,8 @@ public class AnalyzeService {
 
     @Resource
     private DepotHeadMapperEx depotHeadMapperEx;
+    @Resource
+    private AccountHeadMapperEx accountHeadMapperEx;
     @Resource
     private DepotService depotService;
 
@@ -101,6 +106,26 @@ public class AnalyzeService {
                     resList.add(dh);
                 }
             }
+        }catch(Exception e){
+            JshException.readFail(logger, e);
+        }
+        return resList;
+    }
+
+    /**
+     * 其他收支分析
+     * 获取指定时间段（月份）- 收支项目、收支金额
+     * @param beginTime
+     * @param endTime
+     * @return
+     * @throws Exception
+     */
+    public List<OtherAs> getOtherAs(String beginTime, String endTime) throws Exception {
+        List<OtherAs> resList = new ArrayList<>();
+        try{
+            beginTime = Tools.parseDayToTime(beginTime,BusinessConstants.DAY_FIRST_TIME);
+            endTime = Tools.parseDayToTime(endTime,BusinessConstants.DAY_LAST_TIME);
+            resList=accountHeadMapperEx.selectByConditionAccountHeadGroupByItem(null, null, null, beginTime, endTime);
         }catch(Exception e){
             JshException.readFail(logger, e);
         }

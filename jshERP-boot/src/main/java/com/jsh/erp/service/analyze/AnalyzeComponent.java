@@ -56,6 +56,10 @@ public class AnalyzeComponent implements ICommonQuery {
         {
             return analyzeService.getSaleAs(beginTime, endTime, depotId);
         }
+        else if (flag != null && flag.compareTo("other") == 0)
+        {
+            return analyzeService.getOtherAs(beginTime, endTime);
+        }
 
         return analyzeService.getPurchaseAs(beginTime, endTime, depotId);
     }

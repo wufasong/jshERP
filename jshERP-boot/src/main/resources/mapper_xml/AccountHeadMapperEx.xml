@@ -9,6 +9,16 @@
         <result column="AccountName" jdbcType="VARCHAR" property="accountName" />
     </resultMap>
 
+    <resultMap id="ResultOtherAsMap" type="com.jsh.erp.datasource.vo.OtherAs">
+        <result column="clientId" jdbcType="BIGINT" property="clientId" />
+        <result column="clientName" jdbcType="VARCHAR" property="clientName" />
+        <result column="itemId" jdbcType="BIGINT" property="itemId" />
+        <result column="itemName" jdbcType="VARCHAR" property="itemName" />
+        <result column="itemType" jdbcType="VARCHAR" property="itemType" />
+
+        <result column="changeAmount" jdbcType="DECIMAL" property="changeAmount" />
+    </resultMap>
+
     <select id="selectByConditionAccountHead" parameterType="com.jsh.erp.datasource.entities.AccountHeadExample" resultMap="ResultMapEx">
         select ah.*, s.supplier OrganName, p.Name HandsPersonName, u.username userName, a.Name AccountName
         from jsh_account_head ah
@@ -89,6 +99,35 @@
             )
         </if>
         and ifnull(delete_flag,'0') !='1'
+    </select>
+
+    <select id="selectByConditionAccountHeadGroupByItem" parameterType="com.jsh.erp.datasource.entities.AccountHeadExample" resultMap="ResultOtherAsMap">
+        ah.organ_id clientId, s.supplier clientName,
+        io.id itemId, io.name itemName, io.type itemType,
+        ifnull(sum(ah.change_amount),0) as changeAmount
+        from jsh_account_head ah
+        left join jsh_supplier s on ah.organ_id=s.id and ifnull(s.delete_Flag,'0') !='1'
+        left join jsh_account_item ai on ah.id = ai.header_id and ifnull(ai.delete_flag,'0') !='1'
+        left join jsh_in_out_item io on io.id = ai.in_out_item_id and ifnull(io.delete_flag,'0') !='1'
+        where 1=1
+        <if test="type != null">
+            and io.type=#{type}
+        </if>
+        <if test="item != null">
+            and io.id=#{item}
+        </if>
+        <if test="beginTime != null">
+            and ah.bill_time &gt;= #{beginTime}
+        </if>
+        <if test="endTime != null">
+            and ah.bill_time &lt;= #{endTime}
+        </if>
+        <if test="organId != null">
+            and ah.organ_id=#{supplier}
+        </if>
+        and ifnull(ah.delete_flag,'0') !='1'
+        group by io.id
+        order by ah.id asc io.type asc
     </select>
 
     <select id="findAllMoney" resultType="java.math.BigDecimal">
