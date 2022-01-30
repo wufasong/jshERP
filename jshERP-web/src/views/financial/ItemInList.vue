@@ -4,7 +4,7 @@
     <a-col :md="24">
       <a-card :style="cardStyle" :bordered="false">
         <!-- 查询区域 -->
-        <div class="table-page-search-wrapper">
+        <div class="table-page-search-wrapper" v-if="showType">
           <!-- 搜索区域 -->
           <a-form layout="inline" @keyup.enter.native="searchQuery">
             <a-row :gutter="24">
@@ -83,7 +83,7 @@
           </a-form>
         </div>
         <!-- 操作按钮区域 -->
-        <div class="table-operator" style="margin-top: 5px">
+        <div class="table-operator" style="margin-top: 5px" v-if="showType">
           <a-button v-if="btnEnableList.indexOf(1) > -1" @click="myHandleAdd" type="primary" icon="plus">新增</a-button>
           <a-dropdown>
             <a-menu slot="overlay">
@@ -162,6 +162,14 @@ export default {
     ItemInModal,
     FinancialDetail,
     JDate,
+  },
+  props: {
+    showType: {
+      type: Boolean,
+      default: () => {
+        return true
+      },
+    },
   },
   data() {
     return {

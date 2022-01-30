@@ -4,7 +4,7 @@
     <a-col :md="24">
       <a-card :style="cardStyle" :bordered="false">
         <!-- 查询区域 -->
-        <div class="table-page-search-wrapper">
+        <div class="table-page-search-wrapper" v-if="showType">
           <!-- 搜索区域 -->
           <a-form layout="inline" @keyup.enter.native="searchQuery">
             <a-row :gutter="24">
@@ -16,7 +16,7 @@
               <a-col :md="6" :sm="24">
                 <a-form-item label="单据日期" :labelCol="labelCol" :wrapperCol="wrapperCol">
                   <a-range-picker
-                    style="width:100%"
+                    style="width: 100%"
                     v-model="queryParam.createTimeRange"
                     format="YYYY-MM-DD"
                     :placeholder="['开始时间', '结束时间']"
@@ -28,8 +28,13 @@
               <template v-if="toggleSearchStatus">
                 <a-col :md="6" :sm="24">
                   <a-form-item label="客户" :labelCol="labelCol" :wrapperCol="wrapperCol">
-                    <a-select placeholder="选择客户" showSearch optionFilterProp="children" v-model="queryParam.organId">
-                      <a-select-option v-for="(item,index) in cusList" :key="index" :value="item.id">
+                    <a-select
+                      placeholder="选择客户"
+                      showSearch
+                      optionFilterProp="children"
+                      v-model="queryParam.organId"
+                    >
+                      <a-select-option v-for="(item, index) in cusList" :key="index" :value="item.id">
                         {{ item.supplier }}
                       </a-select-option>
                     </a-select>
@@ -37,8 +42,13 @@
                 </a-col>
                 <a-col :md="6" :sm="24">
                   <a-form-item label="财务人员" :labelCol="labelCol" :wrapperCol="wrapperCol">
-                    <a-select placeholder="选择财务人员" showSearch optionFilterProp="children" v-model="queryParam.handsPersonId">
-                      <a-select-option v-for="(item,index) in personList" :key="index" :value="item.id">
+                    <a-select
+                      placeholder="选择财务人员"
+                      showSearch
+                      optionFilterProp="children"
+                      v-model="queryParam.handsPersonId"
+                    >
+                      <a-select-option v-for="(item, index) in personList" :key="index" :value="item.id">
                         {{ item.name }}
                       </a-select-option>
                     </a-select>
@@ -46,21 +56,26 @@
                 </a-col>
                 <a-col :md="6" :sm="24">
                   <a-form-item label="操作员" :labelCol="labelCol" :wrapperCol="wrapperCol">
-                    <a-select placeholder="选择操作员" showSearch optionFilterProp="children" v-model="queryParam.creator">
-                      <a-select-option v-for="(item,index) in userList" :key="index" :value="item.id">
+                    <a-select
+                      placeholder="选择操作员"
+                      showSearch
+                      optionFilterProp="children"
+                      v-model="queryParam.creator"
+                    >
+                      <a-select-option v-for="(item, index) in userList" :key="index" :value="item.id">
                         {{ item.userName }}
                       </a-select-option>
                     </a-select>
                   </a-form-item>
                 </a-col>
               </template>
-              <span style="float: left;overflow: hidden;" class="table-page-search-submitButtons">
+              <span style="float: left; overflow: hidden" class="table-page-search-submitButtons">
                 <a-col :md="6" :sm="24">
                   <a-button type="primary" @click="searchQuery">查询</a-button>
                   <a-button style="margin-left: 8px" @click="searchReset">重置</a-button>
                   <a @click="handleToggleSearch" style="margin-left: 8px">
                     {{ toggleSearchStatus ? '收起' : '展开' }}
-                    <a-icon :type="toggleSearchStatus ? 'up' : 'down'"/>
+                    <a-icon :type="toggleSearchStatus ? 'up' : 'down'" />
                   </a>
                 </a-col>
               </span>
@@ -68,21 +83,29 @@
           </a-form>
         </div>
         <!-- 操作按钮区域 -->
-        <div class="table-operator"  style="margin-top: 5px">
-          <a-button v-if="btnEnableList.indexOf(1)>-1" @click="myHandleAdd" type="primary" icon="plus">新增</a-button>
+        <div class="table-operator" style="margin-top: 5px" v-if="showType">
+          <a-button v-if="btnEnableList.indexOf(1) > -1" @click="myHandleAdd" type="primary" icon="plus">新增</a-button>
           <a-dropdown>
             <a-menu slot="overlay">
-              <a-menu-item key="1" v-if="btnEnableList.indexOf(1)>-1" @click="batchDel"><a-icon type="delete"/>删除</a-menu-item>
-              <a-menu-item key="2" v-if="btnEnableList.indexOf(2)>-1" @click="batchSetStatus(1)"><a-icon type="check"/>审核</a-menu-item>
-              <a-menu-item key="3" v-if="btnEnableList.indexOf(7)>-1" @click="batchSetStatus(0)"><a-icon type="stop"/>反审核</a-menu-item>
+              <a-menu-item key="1" v-if="btnEnableList.indexOf(1) > -1" @click="batchDel"
+                ><a-icon type="delete" />删除</a-menu-item
+              >
+              <a-menu-item key="2" v-if="btnEnableList.indexOf(2) > -1" @click="batchSetStatus(1)"
+                ><a-icon type="check" />审核</a-menu-item
+              >
+              <a-menu-item key="3" v-if="btnEnableList.indexOf(7) > -1" @click="batchSetStatus(0)"
+                ><a-icon type="stop" />反审核</a-menu-item
+              >
             </a-menu>
-            <a-button>
-              批量操作 <a-icon type="down" />
-            </a-button>
+            <a-button> 批量操作 <a-icon type="down" /> </a-button>
           </a-dropdown>
-          <a-tooltip placement="left" title="收款单所收金额只对付款单位的应收应付产生影响，可以在回款统计中进行查看。
-          收款单的优惠金额会对利润产生影响，但不影响付款单位的应收应付。优惠金额计入收入类的收款优惠中。" slot="action">
-            <a-icon v-if="btnEnableList.indexOf(1)>-1" type="question-circle" style="font-size:20px;float:right;" />
+          <a-tooltip
+            placement="left"
+            title="收款单所收金额只对付款单位的应收应付产生影响，可以在回款统计中进行查看。
+          收款单的优惠金额会对利润产生影响，但不影响付款单位的应收应付。优惠金额计入收入类的收款优惠中。"
+            slot="action"
+          >
+            <a-icon v-if="btnEnableList.indexOf(1) > -1" type="question-circle" style="font-size: 20px; float: right" />
           </a-tooltip>
         </div>
         <!-- table区域-begin -->
@@ -97,14 +120,19 @@
             :pagination="ipagination"
             :scroll="scroll"
             :loading="loading"
-            :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
-            @change="handleTableChange">
+            :rowSelection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
+            @change="handleTableChange"
+          >
             <span slot="action" slot-scope="text, record">
               <a @click="myHandleDetail(record, '收款')">查看</a>
-              <a-divider v-if="btnEnableList.indexOf(1)>-1" type="vertical" />
-              <a v-if="btnEnableList.indexOf(1)>-1" @click="myHandleEdit(record)">编辑</a>
-              <a-divider v-if="btnEnableList.indexOf(1)>-1" type="vertical" />
-              <a-popconfirm v-if="btnEnableList.indexOf(1)>-1" title="确定删除吗?" @confirm="() => myHandleDelete(record)">
+              <a-divider v-if="btnEnableList.indexOf(1) > -1" type="vertical" />
+              <a v-if="btnEnableList.indexOf(1) > -1" @click="myHandleEdit(record)">编辑</a>
+              <a-divider v-if="btnEnableList.indexOf(1) > -1" type="vertical" />
+              <a-popconfirm
+                v-if="btnEnableList.indexOf(1) > -1"
+                title="确定删除吗?"
+                @confirm="() => myHandleDelete(record)"
+              >
                 <a>删除</a>
               </a-popconfirm>
             </span>
@@ -123,78 +151,88 @@
   </a-row>
 </template>
 <script>
-  import MoneyInModal from './modules/MoneyInModal'
-  import FinancialDetail from './dialog/FinancialDetail'
-  import { JeecgListMixin } from '@/mixins/JeecgListMixin'
-  import { FinancialListMixin } from './mixins/FinancialListMixin'
-  import JDate from '@/components/jeecg/JDate'
-  export default {
-    name: "MoneyInList",
-    mixins:[JeecgListMixin, FinancialListMixin],
-    components: {
-      MoneyInModal,
-      FinancialDetail,
-      JDate
+import MoneyInModal from './modules/MoneyInModal'
+import FinancialDetail from './dialog/FinancialDetail'
+import { JeecgListMixin } from '@/mixins/JeecgListMixin'
+import { FinancialListMixin } from './mixins/FinancialListMixin'
+import JDate from '@/components/jeecg/JDate'
+export default {
+  name: 'MoneyInList',
+  props: {
+    showType: {
+      type: Boolean,
+      default: () => {
+        return true
+      },
     },
-    data () {
-      return {
-        labelCol: {
-          span: 5
+  },
+  mixins: [JeecgListMixin, FinancialListMixin],
+  components: {
+    MoneyInModal,
+    FinancialDetail,
+    JDate,
+  },
+  data() {
+    return {
+      labelCol: {
+        span: 5,
+      },
+      wrapperCol: {
+        span: 18,
+        offset: 1,
+      },
+      // 查询条件
+      queryParam: {
+        billNo: '',
+        searchMaterial: '',
+        type: '收款',
+        organId: '',
+        creator: '',
+        handsPersonId: '',
+      },
+      // 表头
+      columns: [
+        { title: '客户', dataIndex: 'organName', width: 140, ellipsis: true },
+        { title: '财务人员', dataIndex: 'handsPersonName', width: 140 },
+        { title: '单据编号', dataIndex: 'billNo', width: 160 },
+        { title: '单据日期 ', dataIndex: 'billTimeStr', width: 160 },
+        { title: '操作员', dataIndex: 'userName', width: 80, ellipsis: true },
+        { title: '合计收款', dataIndex: 'totalPrice', width: 80 },
+        { title: '优惠金额', dataIndex: 'discountMoney', width: 80 },
+        { title: '实际收款', dataIndex: 'changeAmount', width: 80 },
+        { title: '备注', dataIndex: 'remark', width: 200 },
+        {
+          title: '状态',
+          dataIndex: 'status',
+          width: 80,
+          align: 'center',
+          scopedSlots: { customRender: 'customRenderStatus' },
         },
-        wrapperCol: {
-          span: 18,
-          offset: 1
+        {
+          title: '操作',
+          dataIndex: 'action',
+          width: 200,
+          align: 'center',
+          scopedSlots: { customRender: 'action' },
         },
-        // 查询条件
-        queryParam: {
-          billNo: "",
-          searchMaterial: "",
-          type: "收款",
-          organId: "",
-          creator: "",
-          handsPersonId: ""
-        },
-        // 表头
-        columns: [
-          { title: '客户', dataIndex: 'organName',width:140, ellipsis:true},
-          { title: '财务人员', dataIndex: 'handsPersonName',width:140},
-          { title: '单据编号', dataIndex: 'billNo',width:160},
-          { title: '单据日期 ', dataIndex: 'billTimeStr',width:160},
-          { title: '操作员', dataIndex: 'userName',width:80, ellipsis:true},
-          { title: '合计收款', dataIndex: 'totalPrice',width:80},
-          { title: '优惠金额', dataIndex: 'discountMoney',width:80},
-          { title: '实际收款', dataIndex: 'changeAmount',width:80},
-          { title: '备注', dataIndex: 'remark',width:200},
-          { title: '状态', dataIndex: 'status', width: 80, align: "center",
-            scopedSlots: { customRender: 'customRenderStatus' }
-          },
-          {
-            title: '操作',
-            dataIndex: 'action',
-            width:200,
-            align:"center",
-            scopedSlots: { customRender: 'action' },
-          }
-        ],
-        url: {
-          list: "/accountHead/list",
-          delete: "/accountHead/delete",
-          deleteBatch: "/accountHead/deleteBatch",
-          batchSetStatusUrl: "/accountHead/batchSetStatus"
-        }
-      }
-    },
-    computed: {
-    },
-    created () {
-      this.initCustomer()
-      this.initUser()
-      this.initPerson()
-    },
-    methods: {
+      ],
+      url: {
+        list: '/accountHead/list',
+        delete: '/accountHead/delete',
+        deleteBatch: '/accountHead/deleteBatch',
+        batchSetStatusUrl: '/accountHead/batchSetStatus',
+      },
     }
-  }
+  },
+  computed: {},
+  created() {
+    this.initCustomer()
+    this.initUser()
+    this.initPerson()
+  },
+  methods: {},
+}
 </script>
 <style scoped>
-  @import '~@assets/less/common.less'
+@import '~@assets/less/common.less';
 </style>
