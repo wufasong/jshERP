@@ -170,6 +170,12 @@ export default {
         return true
       },
     },
+    extraData: {
+      type: Object,
+      default: () => {
+        return {}
+      },
+    },
   },
   data() {
     return {
@@ -188,6 +194,7 @@ export default {
         organId: '',
         creator: '',
         handsPersonId: '',
+        ...this.extraData,
       },
       // 表头
       columns: [
@@ -226,6 +233,9 @@ export default {
     this.initOrgan()
     this.initUser()
     this.initPerson()
+    if (!this.showType) {
+      this.cardStyle = ''
+    }
   },
   methods: {},
 }

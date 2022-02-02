@@ -12,8 +12,16 @@
       :scroll="scroll"
       :loading="loading"
     >
-      <a slot="twos" slot-scope="text" @click="openBusinessModel(2)">{{ text }}</a>
-      <a slot="fours" slot-scope="text" @click="openBusinessModel(3)">{{ text }}</a>
+      <span slot="discountLastMoney" slot-scope="text, record"
+        >{{
+          (
+            (record.discountLastMoney + record.otherMoney - record.stockCost) /
+            (record.discountLastMoney + record.otherMoney)
+          ).toFixed(2)
+        }}%</span
+      >
+      <a slot="totalPrice" slot-scope="text, record" @click="openBusinessModel(2, record)">{{ text }}</a>
+      <a slot="changeAmount" slot-scope="text, record" @click="openBusinessModel(3, record)">{{ text }}</a>
     </a-table>
   </div>
 </template>
@@ -25,13 +33,23 @@ const columnsList = [
   {
     title: '销售分析',
     children: [
-      { title: '客户名称', dataIndex: 'ones', key: 'ones' },
-      { title: '销售金额', dataIndex: 'twos', key: 'twos', scopedSlots: { customRender: 'twos' } },
-      { title: '毛利率', dataIndex: 'threes', key: 'threes' },
-      { title: '销售回款 ', dataIndex: 'fours', key: 'fours', scopedSlots: { customRender: 'fours' } },
-      { title: '优惠金额', dataIndex: 'fives', key: 'fives' },
-      { title: '当期欠款', dataIndex: 'sixs', key: 'sixs' },
-      { title: '总欠款', dataIndex: 'events', key: 'events' },
+      { title: '客户名称', dataIndex: 'clientName', key: 'clientName' },
+      { title: '销售金额', dataIndex: 'totalPrice', key: 'totalPrice', scopedSlots: { customRender: 'totalPrice' } },
+      {
+        title: '毛利率',
+        dataIndex: 'discountLastMoney',
+        key: 'discountLastMoney',
+        scopedSlots: { customRender: 'discountLastMoney' },
+      },
+      {
+        title: '销售回款 ',
+        dataIndex: 'changeAmount',
+        key: 'changeAmount',
+        scopedSlots: { customRender: 'changeAmount' },
+      },
+      { title: '优惠金额', dataIndex: 'discountMoney', key: 'discountMoney' },
+      { title: '当期欠款', dataIndex: 'periodDebt', key: 'periodDebt' },
+      { title: '总欠款', dataIndex: 'totalDebt', key: 'totalDebt' },
     ],
   },
 ]
@@ -45,6 +63,9 @@ export default {
         beginTime: moment().format('YYYY-MM') + '-01',
         endTime: moment().format('YYYY-MM') + '-' + this.getEndTime(new Date(moment().format())),
         as: 'sale',
+      },
+      ipagination: {
+        pageSize: 10000,
       },
       noRemoveStatusColumn: true,
       dataSource: [{ ones: 1, twos: '123', threes: 3, fours: 4, fives: 5, sixs: 6, events: 7 }],
@@ -61,8 +82,10 @@ export default {
       this.queryParam = Object.assign(this.queryParam, query)
       this.loadData(1)
     },
-    openBusinessModel(ind) {
-      this.$emit('openBusinessModel', ind)
+    openBusinessModel(ind, record) {
+      this.$emit('openBusinessModel', ind, {
+        organId: record.clientId,
+      })
     },
     getEndTime(d) {
       return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()

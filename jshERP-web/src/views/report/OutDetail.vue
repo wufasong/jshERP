@@ -135,6 +135,12 @@ export default {
         return true
       },
     },
+    extraData: {
+      type: Object,
+      default: () => {
+        return {}
+      },
+    },
   },
   mixins: [JeecgListMixin],
   components: {
@@ -159,6 +165,7 @@ export default {
         beginTime: getNowFormatMonth() + '-01',
         endTime: moment().format('YYYY-MM-DD'),
         type: '出库',
+        ...this.extraData,
       },
       ipagination: {
         pageSize: 11,
@@ -206,6 +213,9 @@ export default {
     }
   },
   created() {
+    if (!this.showType) {
+      this.cardStyle = ''
+    }
     this.getDepotData()
     this.initSupplier()
     this.defaultTimeStr = [

@@ -12,8 +12,8 @@
       :scroll="scroll"
       :loading="loading"
     >
-      <a slot="changeAmount" slot-scope="text" @click="openBusinessModel(0)">{{ text }}</a>
-      <a slot="totalPrice" slot-scope="text" @click="openBusinessModel(1)">{{ text }}</a>
+      <a slot="changeAmount" slot-scope="text, record" @click="openBusinessModel(0, record)">{{ text }}</a>
+      <a slot="totalPrice" slot-scope="text, record" @click="openBusinessModel(1, record)">{{ text }}</a>
     </a-table>
   </div>
 </template>
@@ -54,6 +54,9 @@ export default {
         beginTime: moment().format('YYYY-MM') + '-01',
         endTime: moment().format('YYYY-MM') + '-' + this.getEndTime(new Date(moment().format())),
       },
+      ipagination: {
+        pageSize: 10000,
+      },
       dataSource: [],
       noRemoveStatusColumn: true,
       url: {
@@ -66,8 +69,10 @@ export default {
       this.queryParam = Object.assign(this.queryParam, query)
       this.loadData(1)
     },
-    openBusinessModel(ind) {
-      this.$emit('openBusinessModel', ind)
+    openBusinessModel(ind, record) {
+      this.$emit('openBusinessModel', ind, {
+        organId: record.organId,
+      })
     },
     getEndTime(d) {
       return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()

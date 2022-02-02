@@ -12,7 +12,7 @@
       :scroll="scroll"
       :loading="loading"
     >
-      <a slot="hes" slot-scope="text" @click="openBusinessModel(4)">{{ text }}</a>
+      <a slot="changeAmount" slot-scope="text, record" @click="openBusinessModel(record)">{{ text }}</a>
     </a-table>
   </div>
 </template>
@@ -24,8 +24,8 @@ const columnsList = [
   {
     title: '其他收支分析',
     children: [
-      { title: '收支项目', dataIndex: 'szh', key: 'szh' },
-      { title: '金额', dataIndex: 'hes', key: 'hes', scopedSlots: { customRender: 'hes' } },
+      { title: '收支项目', dataIndex: 'clientName', key: 'clientName' },
+      { title: '金额', dataIndex: 'changeAmount', key: 'changeAmount', scopedSlots: { customRender: 'changeAmount' } },
     ],
   },
 ]
@@ -41,6 +41,9 @@ export default {
         endTime: moment().format('YYYY-MM') + '-' + this.getEndTime(new Date(moment().format())),
         as: 'other',
       },
+      ipagination: {
+        pageSize: 10000,
+      },
       dataSource: [{ szh: 1, hes: 1 }],
       url: {
         list: '/analyze/list',
@@ -52,8 +55,10 @@ export default {
       this.queryParam = Object.assign(this.queryParam, query)
       this.loadData(1)
     },
-    openBusinessModel(ind) {
-      this.$emit('openBusinessModel', ind)
+    openBusinessModel(record) {
+      this.$emit('openBusinessModel', record.itemType == '收入' ? 4 : 5, {
+        organId: record.clientId,
+      })
     },
     getEndTime(d) {
       return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()

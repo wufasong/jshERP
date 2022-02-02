@@ -57,8 +57,12 @@ export default {
   created() {},
   methods: {
     moment,
-    openBusinessModel(e) {
-      this.$refs.BusinessModel.open(e)
+    openBusinessModel(e, params) {
+      this.$refs.BusinessModel.open(e, {
+        beginTime: this.queryParam.beginTime,
+        endTime: this.queryParam.endTime,
+        ...params,
+      })
     },
     onChange: function (value, dateString) {
       this.queryParam.endTime = dateString + '-' + this.getEndTime(new Date(value.format()))

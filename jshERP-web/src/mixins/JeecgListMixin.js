@@ -7,23 +7,23 @@ import { filterObj } from '@/utils/util';
 import { deleteAction, getAction, postAction, downFile, getFileAccessHttpUrl } from '@/api/manage'
 import Vue from 'vue'
 import { ACCESS_TOKEN } from "@/store/mutation-types"
-import {mixinDevice} from '@/utils/mixin.js'
+import { mixinDevice } from '@/utils/mixin.js'
 import { countBy } from 'lodash';
 
 export const JeecgListMixin = {
   mixins: [mixinDevice],
-  data(){
+  data() {
     return {
       //token header
-      tokenHeader: {'X-Access-Token': Vue.ls.get(ACCESS_TOKEN)},
+      tokenHeader: { 'X-Access-Token': Vue.ls.get(ACCESS_TOKEN) },
       /*卡片样式 */
       cardStyle: '',
       /* 查询条件-请不要在queryParam中声明非字符串值的属性 */
       queryParam: {},
       /* 数据源 */
-      dataSource:[],
+      dataSource: [],
       /* 分页参数 */
-      ipagination:{
+      ipagination: {
         current: 1,
         pageSize: 10,
         pageSizeOptions: ['10', '20', '30'],
@@ -37,22 +37,22 @@ export const JeecgListMixin = {
       /* 控制table高度 */
       scroll: {},
       /* 排序参数 */
-      isorter:{
+      isorter: {
         column: 'createTime',
         order: 'desc',
       },
       /* 筛选参数 */
       filters: {},
       /* table加载状态 */
-      loading:false,
+      loading: false,
       /* table选中keys*/
       selectedRowKeys: [],
       /* table选中records*/
       selectionRows: [],
       /* 查询折叠 */
-      toggleSearchStatus:false,
+      toggleSearchStatus: false,
       /* 高级查询条件生效状态 */
-      superQueryFlag:false,
+      superQueryFlag: false,
       /* 高级查询条件 */
       superQueryParams: '',
       /** 高级查询拼接方式 */
@@ -64,11 +64,11 @@ export const JeecgListMixin = {
     }
   },
   created() {
-    if(this.isDesktop()) {
-      this.cardStyle = 'height:' + (document.documentElement.clientHeight-125) + 'px'
+    if (this.isDesktop()) {
+      this.cardStyle = 'height:' + (document.documentElement.clientHeight - 125) + 'px'
     }
-    if(!this.disableMixinCreated){
-      //console.log(' -- mixin created -- ')
+    if (!this.disableMixinCreated) {
+      console.log(' -- mixin created -- ')
       this.loadData();
       //初始化字典配置 在自己页面定义
       this.initDictConfig();
@@ -76,12 +76,12 @@ export const JeecgListMixin = {
       this.initActiveBtnStr();
     }
   },
-  mounted () {
+  mounted() {
     this.initScroll()
   },
-  methods:{
+  methods: {
     loadData(arg) {
-      if(!this.url.list){
+      if (!this.url.list) {
         this.$message.error("请设置url.list属性!")
         return
       }
@@ -92,20 +92,16 @@ export const JeecgListMixin = {
       var params = this.getQueryParams();//查询条件
       this.loading = true;
       getAction(this.url.list, params).then((res) => {
-        if (res.code===200) {
+        if (res.code === 200) {
           console.log('response : ');
           console.log(res.data.rows);
           this.dataSource = res.data.rows;
-          if (this.dataSource && this.dataSource.length > 0)
-          {
-            for (let i = 0; i < this.dataSource.length; i++)
-            {
-              if (this.dataSource[i]['roleName'] && this.dataSource[i]['roleName']=='租户')
-              {
+          if (this.dataSource && this.dataSource.length > 0) {
+            for (let i = 0; i < this.dataSource.length; i++) {
+              if (this.dataSource[i]['roleName'] && this.dataSource[i]['roleName'] == '租户') {
                 this.dataSource[i]['roleName'] = '管理员';
               }
-              if (this.dataSource[i]['userType'] && this.dataSource[i]['userType']=='租户')
-              {
+              if (this.dataSource[i]['userType'] && this.dataSource[i]['userType'] == '租户') {
                 this.dataSource[i]['userType'] = '管理员';
               }
             }
@@ -113,23 +109,23 @@ export const JeecgListMixin = {
           this.ipagination.total = res.data.total;
           this.tableAddTotalRow(this.columns, this.dataSource)
         }
-        if(res.code===510){
+        if (res.code === 510) {
           this.$message.warning(res.data)
         }
         this.loading = false;
       })
     },
-    initDictConfig(){
+    initDictConfig() {
       //console.log("--这是一个假的方法!")
     },
     handleSuperQuery(params, matchType) {
       //高级查询方法
-      if(!params){
-        this.superQueryParams=''
+      if (!params) {
+        this.superQueryParams = ''
         this.superQueryFlag = false
-      }else{
+      } else {
         this.superQueryFlag = true
-        this.superQueryParams=JSON.stringify(params)
+        this.superQueryParams = JSON.stringify(params)
         this.superQueryMatchType = matchType
       }
       this.loadData(1)
@@ -137,13 +133,13 @@ export const JeecgListMixin = {
     getQueryParams() {
       //获取查询条件
       let sqp = {}
-      if(this.superQueryParams){
-        sqp['superQueryParams']=encodeURI(this.superQueryParams)
+      if (this.superQueryParams) {
+        sqp['superQueryParams'] = encodeURI(this.superQueryParams)
         sqp['superQueryMatchType'] = this.superQueryMatchType
       }
       let searchObj = {}
       searchObj.search = JSON.stringify(this.queryParam);
-      var param = Object.assign(sqp, searchObj, this.isorter ,this.filters);
+      var param = Object.assign(sqp, searchObj, this.isorter, this.filters);
       param.field = this.getQueryField();
       param.currentPage = this.ipagination.current;
       param.pageSize = this.ipagination.pageSize;
@@ -176,7 +172,7 @@ export const JeecgListMixin = {
       this.loadData(1);
     },
     batchSetStatus: function (status) {
-      if(!this.url.batchSetStatusUrl){
+      if (!this.url.batchSetStatusUrl) {
         this.$message.error("请设置url.batchSetStatusUrl属性!")
         return
       }
@@ -194,8 +190,8 @@ export const JeecgListMixin = {
           content: "是否操作选中数据?",
           onOk: function () {
             that.loading = true;
-            postAction(that.url.batchSetStatusUrl, {status: status, ids: ids}).then((res) => {
-              if(res.code === 200){
+            postAction(that.url.batchSetStatusUrl, { status: status, ids: ids }).then((res) => {
+              if (res.code === 200) {
                 that.loadData();
                 that.onClearSelected();
               } else {
@@ -209,7 +205,7 @@ export const JeecgListMixin = {
       }
     },
     batchDel: function () {
-      if(!this.url.deleteBatch){
+      if (!this.url.deleteBatch) {
         this.$message.error("请设置url.deleteBatch属性!")
         return
       }
@@ -227,8 +223,8 @@ export const JeecgListMixin = {
           content: "是否删除选中数据?",
           onOk: function () {
             that.loading = true;
-            deleteAction(that.url.deleteBatch, {ids: ids}).then((res) => {
-              if(res.code === 200){
+            deleteAction(that.url.deleteBatch, { ids: ids }).then((res) => {
+              if (res.code === 200) {
                 that.loadData();
                 that.onClearSelected();
               } else {
@@ -242,13 +238,13 @@ export const JeecgListMixin = {
       }
     },
     handleDelete: function (id) {
-      if(!this.url.delete){
+      if (!this.url.delete) {
         this.$message.error("请设置url.delete属性!")
         return
       }
       var that = this;
-      deleteAction(that.url.delete, {id: id}).then((res) => {
-        if(res.code === 200){
+      deleteAction(that.url.delete, { id: id }).then((res) => {
+        if (res.code === 200) {
           that.loadData();
         } else {
           that.$message.warning(res.data.message);
@@ -271,54 +267,54 @@ export const JeecgListMixin = {
         this.isorter.column = sorter.field;
         this.isorter.order = "ascend" == sorter.order ? "asc" : "desc"
       }
-      if(pagination && pagination.current) {
+      if (pagination && pagination.current) {
         this.ipagination = pagination;
       }
       this.loadData();
     },
-    handleToggleSearch(){
+    handleToggleSearch() {
       this.toggleSearchStatus = !this.toggleSearchStatus;
     },
     // 给popup查询使用(查询区域不支持回填多个字段，限制只返回一个字段)
-    getPopupField(fields){
+    getPopupField(fields) {
       return fields.split(',')[0]
     },
     modalFormOk() {
       // 新增/修改 成功时，重载列表
       this.loadData();
     },
-    handleDetail:function(record, type){
+    handleDetail: function (record, type) {
       this.$refs.modalDetail.show(record, type);
-      this.$refs.modalDetail.title=type+"-详情";
+      this.$refs.modalDetail.title = type + "-详情";
     },
     /* 导出 */
-    handleExportXls2(){
+    handleExportXls2() {
       let paramsStr = encodeURI(JSON.stringify(this.getQueryParams()));
       let url = `${window._CONFIG['domianURL']}/${this.url.exportXlsUrl}?paramsStr=${paramsStr}`;
       window.location.href = url;
     },
-    handleExportXls(fileName){
-      if(!fileName || typeof fileName != "string"){
+    handleExportXls(fileName) {
+      if (!fileName || typeof fileName != "string") {
         fileName = "导出文件"
       }
-      let param = {...this.queryParam};
-      if(this.selectedRowKeys && this.selectedRowKeys.length>0){
+      let param = { ...this.queryParam };
+      if (this.selectedRowKeys && this.selectedRowKeys.length > 0) {
         param['selections'] = this.selectedRowKeys.join(",")
       }
-      console.log("导出参数",param)
-      downFile(this.url.exportXlsUrl,param).then((data)=>{
+      console.log("导出参数", param)
+      downFile(this.url.exportXlsUrl, param).then((data) => {
         if (!data) {
           this.$message.warning("文件下载失败")
           return
         }
         if (typeof window.navigator.msSaveBlob !== 'undefined') {
-          window.navigator.msSaveBlob(new Blob([data],{type: 'application/vnd.ms-excel'}), fileName+'.xls')
-        }else{
-          let url = window.URL.createObjectURL(new Blob([data],{type: 'application/vnd.ms-excel'}))
+          window.navigator.msSaveBlob(new Blob([data], { type: 'application/vnd.ms-excel' }), fileName + '.xls')
+        } else {
+          let url = window.URL.createObjectURL(new Blob([data], { type: 'application/vnd.ms-excel' }))
           let link = document.createElement('a')
           link.style.display = 'none'
           link.href = url
-          link.setAttribute('download', fileName+'.xls')
+          link.setAttribute('download', fileName + '.xls')
           document.body.appendChild(link)
           link.click()
           document.body.removeChild(link); //下载完成移除元素
@@ -327,7 +323,7 @@ export const JeecgListMixin = {
       })
     },
     /* 导入 */
-    handleImportExcel(info){
+    handleImportExcel(info) {
       if (info.file.status !== 'uploading') {
         console.log(info.file, info.fileList);
       }
@@ -348,20 +344,20 @@ export const JeecgListMixin = {
       }
     },
     /* 图片预览 */
-    getImgView(text){
-      if(text && text.indexOf(",")>0){
-        text = text.substring(0,text.indexOf(","))
+    getImgView(text) {
+      if (text && text.indexOf(",") > 0) {
+        text = text.substring(0, text.indexOf(","))
       }
       return getFileAccessHttpUrl(text)
     },
     /* 文件下载 */
-    uploadFile(text){
-      if(!text){
+    uploadFile(text) {
+      if (!text) {
         this.$message.warning("未知的文件")
         return;
       }
-      if(text.indexOf(",")>0){
-        text = text.substring(0,text.indexOf(","))
+      if (text.indexOf(",") > 0) {
+        text = text.substring(0, text.indexOf(","))
       }
       let url = getFileAccessHttpUrl(text)
       window.open(url);
@@ -387,23 +383,23 @@ export const JeecgListMixin = {
         this.scroll.y = ''
       } else {
         let basicLength = 274
-        let searchWrapperDomLen=0, operatorDomLen=0
+        let searchWrapperDomLen = 0, operatorDomLen = 0
         //搜索区域
         let searchWrapperDom = document.getElementsByClassName('table-page-search-wrapper')
         //操作按钮区域
         let operatorDom = document.getElementsByClassName('table-operator')
-        if(searchWrapperDom && searchWrapperDom[0]) {
+        if (searchWrapperDom && searchWrapperDom[0]) {
           searchWrapperDomLen = searchWrapperDom[0].offsetHeight
         }
-        if(operatorDom && operatorDom[0]) {
-          operatorDomLen = operatorDom[0].offsetHeight+10
+        if (operatorDom && operatorDom[0]) {
+          operatorDomLen = operatorDom[0].offsetHeight + 10
         }
-        this.scroll.y = document.documentElement.clientHeight-searchWrapperDomLen-operatorDomLen-basicLength
+        this.scroll.y = document.documentElement.clientHeight - searchWrapperDomLen - operatorDomLen - basicLength
       }
     },
     /** 表格增加合计行 */
     tableAddTotalRow(columns, dataSource) {
-      if(dataSource.length>0 && this.ipagination.pageSize%10===1) {
+      if (dataSource.length > 0 && this.ipagination.pageSize % 10 === 1) {
         //分页条数为11、21、31等的时候增加合计行
         let numKey = 'rowIndex'
         let totalRow = { [numKey]: '合计' }
@@ -416,8 +412,8 @@ export const JeecgListMixin = {
           if (![key, dataIndex].includes(numKey)) {
             let total = 0
             dataSource.forEach(data => {
-              if(parseCols.indexOf(dataIndex)>-1) {
-                if(data[dataIndex]) {
+              if (parseCols.indexOf(dataIndex) > -1) {
+                if (data[dataIndex]) {
                   total += Number.parseFloat(data[dataIndex])
                 } else {
                   total += 0
@@ -434,7 +430,7 @@ export const JeecgListMixin = {
         })
         dataSource.push(totalRow)
         //总数要增加合计的行数，每页都有一行合计，所以总数要加上
-        let size = Math.ceil(this.ipagination.total/(this.ipagination.pageSize-1))
+        let size = Math.ceil(this.ipagination.total / (this.ipagination.pageSize - 1))
         this.ipagination.total = this.ipagination.total + size
       }
     },
