@@ -98,10 +98,10 @@ public class AnalyzeService {
 
             beginTime = Tools.parseDayToTime(beginTime,BusinessConstants.DAY_FIRST_TIME);
             endTime = Tools.parseDayToTime(endTime,BusinessConstants.DAY_LAST_TIME);
-            List<SaleAs> list=depotHeadMapperEx.selectByConditionDepotHeadGroupByCli("入库", "采购", null, beginTime, endTime, depotList);
+            List<SaleAs> list=depotHeadMapperEx.selectByConditionDepotHeadGroupByCli("出库", "销售", null, beginTime, endTime, depotList);
             if (null != list) {
                 for (SaleAs dh : list) {
-                    dh.setTotalDebt(depotHeadMapperEx.getSaleAsCliTotalDebt("入库", "采购", null, endTime, depotList, dh.getClientId()));
+                    dh.setTotalDebt(depotHeadMapperEx.getSaleAsCliTotalDebt("出库", "销售", null, endTime, depotList, dh.getClientId()));
 
                     resList.add(dh);
                 }
