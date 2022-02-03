@@ -15,6 +15,7 @@ hs_err_pid*
 .idea
 /target
 /dist
+!/dist/jshERP-bin.zip
 /out
 /logs*
 
