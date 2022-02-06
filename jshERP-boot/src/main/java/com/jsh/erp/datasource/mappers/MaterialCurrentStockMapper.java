@@ -2,6 +2,8 @@ package com.jsh.erp.datasource.mappers;
 
 import com.jsh.erp.datasource.entities.MaterialCurrentStock;
 import com.jsh.erp.datasource.entities.MaterialCurrentStockExample;
+
+import java.math.BigDecimal;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,4 +29,6 @@ public interface MaterialCurrentStockMapper {
     int updateByPrimaryKeySelective(MaterialCurrentStock record);
 
     int updateByPrimaryKey(MaterialCurrentStock record);
+
+    BigDecimal getCurrentStockCost(@Param("depotList") List<Long> depotList);
 }

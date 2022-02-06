@@ -42,6 +42,12 @@ public interface AccountHeadMapperEx {
             @Param("beginTime") String beginTime,
             @Param("endTime") String endTime);
 
+    BigDecimal getOtherSumByTime(
+            @Param("item") Long item,
+            @Param("type") String type,
+            @Param("beginTime") String beginTime,
+            @Param("endTime") String endTime);
+
     BigDecimal findAllMoney(
             @Param("supplierId") Integer supplierId,
             @Param("type") String type,

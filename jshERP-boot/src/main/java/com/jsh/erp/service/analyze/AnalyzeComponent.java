@@ -60,6 +60,10 @@ public class AnalyzeComponent implements ICommonQuery {
         {
             return analyzeService.getOtherAs(beginTime, endTime);
         }
+        else if (flag != null && flag.compareTo("sum") == 0)
+        {
+            return analyzeService.getSumAs(beginTime, endTime, depotId);
+        }
 
         return analyzeService.getPurchaseAs(beginTime, endTime, depotId);
     }

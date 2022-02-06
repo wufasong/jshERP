@@ -18,7 +18,7 @@ public class SaleAs {
 
     private BigDecimal stockCost;           // 库存成本
 
-    private BigDecimal needInMoney;         // *采购金额 totalPrice + otherMoney - discountMoney
+    private BigDecimal needInMoney;         // *销售金额 totalPrice + otherMoney - discountMoney
 
     private BigDecimal changeAmount;        // *付款金额（已付部分）
 

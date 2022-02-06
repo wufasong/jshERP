@@ -5,10 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.jsh.erp.constants.BusinessConstants;
 import com.jsh.erp.datasource.entities.*;
 import com.jsh.erp.datasource.mappers.AccountHeadMapperEx;
+import com.jsh.erp.datasource.mappers.MaterialCurrentStockMapper;
 import com.jsh.erp.datasource.vo.OtherAs;
 import com.jsh.erp.datasource.vo.PurchaseAs;
 import com.jsh.erp.datasource.vo.SaleAs;
 import com.jsh.erp.datasource.mappers.DepotHeadMapperEx;
+import com.jsh.erp.datasource.vo.SumAs;
 import com.jsh.erp.exception.JshException;
 import com.jsh.erp.service.account.AccountService;
 import com.jsh.erp.service.depot.DepotService;
@@ -18,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +32,8 @@ public class AnalyzeService {
     private DepotHeadMapperEx depotHeadMapperEx;
     @Resource
     private AccountHeadMapperEx accountHeadMapperEx;
+    @Resource
+    private MaterialCurrentStockMapper materialCurrentStockMapper;
     @Resource
     private DepotService depotService;
 
@@ -126,6 +131,41 @@ public class AnalyzeService {
             beginTime = Tools.parseDayToTime(beginTime,BusinessConstants.DAY_FIRST_TIME);
             endTime = Tools.parseDayToTime(endTime,BusinessConstants.DAY_LAST_TIME);
             resList=accountHeadMapperEx.selectByConditionAccountHeadGroupByItem(null, null, null, beginTime, endTime);
+        }catch(Exception e){
+            JshException.readFail(logger, e);
+        }
+        return resList;
+    }
+
+    /**
+     * 收支汇总分析
+     * 获取指定时间段（月份）- 毛利、纯利、库存金额
+     * @param beginTime
+     * @param endTime
+     * @return
+     * @throws Exception
+     */
+    public List<SumAs> getSumAs(String beginTime, String endTime, Long depotId) throws Exception {
+        List<SumAs> resList = new ArrayList<>();
+        try{
+            List<Long> depotList = new ArrayList<>();
+            if(depotId != null) {
+                depotList.add(depotId);
+            } else {
+                //未选择仓库时默认为当前用户有权限的仓库
+                JSONArray depotArr = depotService.findDepotByCurrentUser();
+                for(Object obj: depotArr) {
+                    JSONObject object = JSONObject.parseObject(obj.toString());
+                    depotList.add(object.getLong("id"));
+                }
+            }
+
+            beginTime = Tools.parseDayToTime(beginTime,BusinessConstants.DAY_FIRST_TIME);
+            endTime = Tools.parseDayToTime(endTime,BusinessConstants.DAY_LAST_TIME);
+            List<PurchaseAs> list_purchase=depotHeadMapperEx.selectByConditionDepotHeadGroupBySup("入库", "采购", null, beginTime, endTime, depotList);
+            List<SaleAs> list_sale=depotHeadMapperEx.selectByConditionDepotHeadGroupByCli("出库", "销售", null, beginTime, endTime, depotList);
+            BigDecimal otherSum = accountHeadMapperEx.getOtherSumByTime(null, null, beginTime, endTime);
+            BigDecimal stockSum = materialCurrentStockMapper.getCurrentStockCost(depotList);
         }catch(Exception e){
             JshException.readFail(logger, e);
         }
