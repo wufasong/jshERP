@@ -7,21 +7,30 @@
       bordered
       rowKey="title"
       :columns="columnsList"
-      :dataSource="dataSource"
+      :dataSource="getDataSource"
       :pagination="false"
       :scroll="scroll"
       :loading="loading"
     >
       <span slot="discountLastMoney" slot-scope="text, record"
-        >{{
-          (
-            (record.discountLastMoney + record.otherMoney - record.stockCost) /
-            (record.discountLastMoney + record.otherMoney)
-          ).toFixed(2)
-        }}%</span
+        >{{ ((record.totalPrice - record.stockCost) / record.stockCost).toFixed(2) }}%</span
       >
-      <a slot="totalPrice" slot-scope="text, record" @click="openBusinessModel(2, record)">{{ text }}</a>
-      <a slot="changeAmount" slot-scope="text, record" @click="openBusinessModel(3, record)">{{ text }}</a>
+      <a
+        slot="totalPrice"
+        slot-scope="text, record"
+        @click="openBusinessModel(2, record)"
+        v-if="record.clientName != '小计'"
+        >{{ text }}</a
+      >
+      <span slot="totalPrice" slot-scope="text, record" v-else>{{ text }}</span>
+      <a
+        slot="changeAmount"
+        slot-scope="text, record"
+        @click="openBusinessModel(3, record)"
+        v-if="record.clientName != '小计'"
+        >{{ text }}</a
+      >
+      <span slot="changeAmount" slot-scope="text, record" v-else>{{ text }}</span>
     </a-table>
   </div>
 </template>
@@ -68,14 +77,37 @@ export default {
         pageSize: 10000,
       },
       noRemoveStatusColumn: true,
-      dataSource: [{ ones: 1, twos: '123', threes: 3, fours: 4, fives: 5, sixs: 6, events: 7 }],
+      dataSource: [],
       url: {
         list: '/analyze/list',
       },
     }
   },
-  created() {
-    console.log(this.columnsList)
+  computed: {
+    getDataSource() {
+      if (!this.dataSource.length) return []
+      if (this.dataSource.length == 1) {
+        this.dataSource.push(JSON.parse(JSON.stringify(this.dataSource[0])))
+        this.dataSource[1].clientName = '小计'
+        this.dataSource[1].discountLastMoney = ''
+        return this.dataSource
+      }
+      let obj = this.dataSource.reduce((pre, current) => {
+        return {
+          totalPrice: pre.totalPrice + current.totalPrice,
+          changeAmount: pre.changeAmount + current.changeAmount,
+          discountMoney: pre.discountMoney + current.discountMoney,
+          periodDebt: pre.periodDebt + current.periodDebt,
+          totalDebt: pre.totalDebt + current.totalDebt,
+        }
+      })
+      this.dataSource.push({
+        clientName: '小计',
+        discountLastMoney: '',
+        ...obj,
+      })
+      return this.dataSource
+    },
   },
   methods: {
     loadDataAnalyse(query) {

@@ -26,7 +26,15 @@
       </div>
       <SaleAnalyse @openBusinessModel="openBusinessModel" ref="SaleAnalyse" />
       <PurchaseAnalysis @openBusinessModel="openBusinessModel" ref="PurchaseAnalysis" />
-      <OutherAnalyse @openBusinessModel="openBusinessModel" ref="OutherAnalyse" />
+      <div class="bottom">
+        <OutherAnalyse @openBusinessModel="openBusinessModel" ref="OutherAnalyse" />
+        <div class="outher-total">
+          <p>当期毛利：1</p>
+          <p>毛利率：1</p>
+          <p>当期纯利：1</p>
+          <p>库存金额：！</p>
+        </div>
+      </div>
     </a-card>
     <BusinessModel ref="BusinessModel" />
   </div>
@@ -37,6 +45,7 @@ import moment from 'moment'
 import PurchaseAnalysis from './PurchaseAnalysis.vue'
 import SaleAnalyse from './SaleAnalyse.vue'
 import OutherAnalyse from './OutherAnalyse.vue'
+import { getCurrentStockCost } from '@/api/api'
 export default {
   components: {
     BusinessModel,
@@ -54,7 +63,13 @@ export default {
       },
     }
   },
-  created() {},
+  created() {
+    getCurrentStockCost({}).then((res) => {
+      if (res && res.code === 200) {
+        console.log(res)
+      }
+    })
+  },
   methods: {
     moment,
     openBusinessModel(e, params) {
@@ -89,6 +104,13 @@ export default {
 }
 .table {
   margin-bottom: 30px;
+}
+.bottom {
+  display: flex;
+}
+.outher-total {
+  margin-left: 50px;
+  font-weight: bold;
 }
 @import '~@assets/less/common.less';
 </style>

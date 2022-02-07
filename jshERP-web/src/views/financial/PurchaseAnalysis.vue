@@ -7,13 +7,27 @@
       bordered
       rowKey="title"
       :columns="columnsList"
-      :dataSource="dataSource"
+      :dataSource="getDataSource"
       :pagination="false"
       :scroll="scroll"
       :loading="loading"
     >
-      <a slot="changeAmount" slot-scope="text, record" @click="openBusinessModel(0, record)">{{ text }}</a>
-      <a slot="totalPrice" slot-scope="text, record" @click="openBusinessModel(1, record)">{{ text }}</a>
+      <a
+        slot="changeAmount"
+        slot-scope="text, record"
+        @click="openBusinessModel(0, record)"
+        v-if="record.organName != '小计'"
+        >{{ text }}</a
+      >
+      <span slot="changeAmount" slot-scope="text, record" v-else>{{ text }}</span>
+      <a
+        slot="totalPrice"
+        slot-scope="text, record"
+        @click="openBusinessModel(1, record)"
+        v-if="record.organName != '小计'"
+        >{{ text }}</a
+      >
+      <span slot="totalPrice" slot-scope="text, record" v-else>{{ text }}</span>
     </a-table>
   </div>
 </template>
@@ -63,6 +77,30 @@ export default {
         list: '/analyze/list',
       },
     }
+  },
+  computed: {
+    getDataSource() {
+      if (!this.dataSource.length) return []
+      if (this.dataSource.length == 1) {
+        this.dataSource.push(JSON.parse(JSON.stringify(this.dataSource[0])))
+        this.dataSource[1].organName = '小计'
+        return this.dataSource
+      }
+      let obj = this.dataSource.reduce((pre, current) => {
+        return {
+          totalPrice: pre.totalPrice + current.totalPrice,
+          changeAmount: pre.changeAmount + current.changeAmount,
+          discountMoney: pre.discountMoney + current.discountMoney,
+          periodDebt: pre.periodDebt + current.periodDebt,
+          totalDebt: pre.totalDebt + current.totalDebt,
+        }
+      })
+      this.dataSource.push({
+        organName: '小计',
+        ...obj,
+      })
+      return this.dataSource
+    },
   },
   methods: {
     loadDataAnalyse(query) {

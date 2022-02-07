@@ -7,12 +7,19 @@
       bordered
       rowKey="title"
       :columns="columnsList"
-      :dataSource="dataSource"
+      :dataSource="getDataSource"
       :pagination="false"
       :scroll="scroll"
       :loading="loading"
     >
-      <a slot="changeAmount" slot-scope="text, record" @click="openBusinessModel(record)">{{ text }}</a>
+      <a
+        slot="changeAmount"
+        slot-scope="text, record"
+        @click="openBusinessModel(record)"
+        v-if="record.itemName != '小计'"
+        >{{ text }}</a
+      >
+      <span slot="changeAmount" slot-scope="text, record" v-else>{{ text }}</span>
     </a-table>
   </div>
 </template>
@@ -24,7 +31,7 @@ const columnsList = [
   {
     title: '其他收支分析',
     children: [
-      { title: '收支项目', dataIndex: 'clientName', key: 'clientName' },
+      { title: '收支项目', dataIndex: 'itemName', key: 'itemName' },
       { title: '金额', dataIndex: 'changeAmount', key: 'changeAmount', scopedSlots: { customRender: 'changeAmount' } },
     ],
   },
@@ -49,6 +56,26 @@ export default {
         list: '/analyze/list',
       },
     }
+  },
+  computed: {
+    getDataSource() {
+      if (!this.dataSource.length) return []
+      if (this.dataSource.length == 1) {
+        this.dataSource.push(JSON.parse(JSON.stringify(this.dataSource[0])))
+        this.dataSource[1].itemName = '小计'
+        return this.dataSource
+      }
+      let obj = this.dataSource.reduce((pre, current) => {
+        return {
+          changeAmount: pre.changeAmount + current.changeAmount,
+        }
+      })
+      this.dataSource.push({
+        itemName: '小计',
+        ...obj,
+      })
+      return this.dataSource
+    },
   },
   methods: {
     loadDataAnalyse(query) {

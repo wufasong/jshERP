@@ -130,7 +130,7 @@
             :pagination="ipagination"
             :scroll="scroll"
             :loading="loading"
-            :rowSelection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
+            :rowSelection="rowSelect"
             @change="handleTableChange"
           >
             <span slot="action" slot-scope="text, record">
@@ -293,7 +293,12 @@ export default {
       },
     }
   },
-  computed: {},
+  computed: {
+    rowSelect() {
+      if (!this.showType) return null
+      return { selectedRowKeys: this.selectedRowKeys, onChange: this.onSelectChange }
+    },
+  },
   created() {
     this.initSupplier()
     this.getDepotData()

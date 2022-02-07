@@ -40,7 +40,7 @@ export default {
       showComponentInd: 0,
       showComponentList: [
         { name: 'MoneyOut', title: '付款单', extraData: {} },
-        { name: 'PurchaseIn', title: '入库明细', extraData: {} },
+        { name: 'PurchaseIn', title: '采购入库', extraData: {} },
         { name: 'OutDetail', title: '出库明细', extraData: {} },
         { name: 'MoneyIn', title: '收款单', extraData: {} },
         { name: 'ItemIn', title: '收入单', extraData: {} },
