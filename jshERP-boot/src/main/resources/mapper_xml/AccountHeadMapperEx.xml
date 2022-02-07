@@ -113,9 +113,6 @@
         <if test="item != null">
             and ioi.id=#{item}
         </if>
-        <if test="supplier != null">
-            and ah.organ_id=#{supplier}
-        </if>
         <if test="type != null">
             and ioi.type=#{type}
         </if>
@@ -125,6 +122,7 @@
         <if test="endTime != null">
             and ah.bill_time &lt;= #{endTime}
         </if>
+        and (ah.type = '收入' or ah.type = '支出')
         and ifnull(ah.delete_flag,'0') !='1'
         group by ioi.id
         order by ioi.type asc

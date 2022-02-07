@@ -130,7 +130,7 @@ public class AnalyzeService {
         try{
             beginTime = Tools.parseDayToTime(beginTime,BusinessConstants.DAY_FIRST_TIME);
             endTime = Tools.parseDayToTime(endTime,BusinessConstants.DAY_LAST_TIME);
-            resList=accountHeadMapperEx.selectByConditionAccountHeadGroupByItem(null, null, null, beginTime, endTime);
+            resList=accountHeadMapperEx.selectByConditionAccountHeadGroupByItem(null,  null, beginTime, endTime);
         }catch(Exception e){
             JshException.readFail(logger, e);
         }

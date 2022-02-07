@@ -37,7 +37,6 @@ public interface AccountHeadMapperEx {
 
     List<OtherAs> selectByConditionAccountHeadGroupByItem(
             @Param("item") Long item,
-            @Param("supplier") Long supplier,
             @Param("type") String type,
             @Param("beginTime") String beginTime,
             @Param("endTime") String endTime);
