@@ -42,20 +42,28 @@ const columnsList = [
   {
     title: '销售分析',
     children: [
-      { title: '客户名称', dataIndex: 'clientName', key: 'clientName' },
-      { title: '销售金额', dataIndex: 'totalPrice', key: 'totalPrice', scopedSlots: { customRender: 'totalPrice' } },
+      { title: '客户名称', dataIndex: 'clientName', key: 'clientName', width: '220px' },
       {
-        title: '毛利率',
-        dataIndex: 'discountLastMoney',
-        key: 'discountLastMoney',
-        scopedSlots: { customRender: 'discountLastMoney' },
+        title: '销售金额',
+        dataIndex: 'totalPrice',
+        key: 'totalPrice',
+        scopedSlots: { customRender: 'totalPrice' },
+        width: '180px',
       },
       {
         title: '销售回款 ',
         dataIndex: 'changeAmount',
         key: 'changeAmount',
         scopedSlots: { customRender: 'changeAmount' },
+        width: '180px',
       },
+      {
+        title: '毛利率',
+        dataIndex: 'discountLastMoney',
+        key: 'discountLastMoney',
+        scopedSlots: { customRender: 'discountLastMoney' },
+      },
+
       { title: '优惠金额', dataIndex: 'discountMoney', key: 'discountMoney' },
       { title: '当期欠款', dataIndex: 'periodDebt', key: 'periodDebt' },
       { title: '总欠款', dataIndex: 'totalDebt', key: 'totalDebt' },
@@ -89,7 +97,6 @@ export default {
       if (this.dataSource.length == 1) {
         this.dataSource.push(JSON.parse(JSON.stringify(this.dataSource[0])))
         this.dataSource[1].clientName = '小计'
-        this.dataSource[1].discountLastMoney = ''
         return this.dataSource
       }
       let obj = this.dataSource.reduce((pre, current) => {
@@ -99,11 +106,12 @@ export default {
           discountMoney: pre.discountMoney + current.discountMoney,
           periodDebt: pre.periodDebt + current.periodDebt,
           totalDebt: pre.totalDebt + current.totalDebt,
+          discountLastMoney: pre.discountLastMoney + current.discountLastMoney,
+          stockCost: pre.stockCost + current.stockCost,
         }
       })
       this.dataSource.push({
         clientName: '小计',
-        discountLastMoney: '',
         ...obj,
       })
       return this.dataSource

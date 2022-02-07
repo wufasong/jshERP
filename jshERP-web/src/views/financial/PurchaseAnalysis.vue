@@ -39,18 +39,20 @@ const columnsList = [
   {
     title: '采购综合分析',
     children: [
-      { title: '供应商名称', dataIndex: 'organName', key: 'organName' },
+      { title: '供应商名称', dataIndex: 'organName', key: 'organName', width: '220px' },
       {
         title: '采购金额',
         dataIndex: 'totalPrice',
         key: 'totalPrice',
         scopedSlots: { customRender: 'totalPrice' },
+        width: '180px',
       },
       {
         title: '付款金额',
         dataIndex: 'changeAmount',
         key: 'changeAmount',
         scopedSlots: { customRender: 'changeAmount' },
+        width: '180px',
       },
       { title: '优惠金额 ', dataIndex: 'discountMoney', key: 'discountMoney' },
       { title: '当期欠款', dataIndex: 'periodDebt', key: 'periodDebt' },
