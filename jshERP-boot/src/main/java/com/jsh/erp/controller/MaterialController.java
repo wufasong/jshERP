@@ -472,6 +472,24 @@ public class MaterialController {
     }
 
     /**
+     * 获取最新库存金额
+     * @param depotId
+     * @return
+     * @throws Exception
+     */
+    @GetMapping(value = "/getCurrentStockCost")
+    @ApiOperation(value = "获取最新库存金额")
+    public BaseResponseInfo getCurrentStockCost(@RequestParam(value = "depotId", required = false) Long depotId) throws Exception {
+        BaseResponseInfo res = new BaseResponseInfo();
+        Map<String, Object> map = new HashMap<String, Object>();
+        BigDecimal stockCost = materialService.getCurrentStockCost(depotId);
+        map.put("stockCost", stockCost);
+        res.code = 200;
+        res.data = map;
+        return res;
+    }
+
+    /**
      * 商品名称模糊匹配
      * @return
      * @throws Exception

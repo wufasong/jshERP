@@ -924,6 +924,26 @@ public class MaterialService {
         }
     }
 
+    public BigDecimal getCurrentStockCost(Long depotId) {
+        List<Long> depotList = new ArrayList<>();
+        try{
+            if(depotId != null) {
+                depotList.add(depotId);
+            } else {
+                //未选择仓库时默认为当前用户有权限的仓库
+                JSONArray depotArr = depotService.findDepotByCurrentUser();
+                for(Object obj: depotArr) {
+                    JSONObject object = JSONObject.parseObject(obj.toString());
+                    depotList.add(object.getLong("id"));
+                }
+            }
+        }catch(Exception e){
+            JshException.readFail(logger, e);
+        }
+
+        return materialCurrentStockMapper.getCurrentStockCost(depotList);
+    }
+
     public List<String> getMaterialNameList() {
         return materialMapperEx.getMaterialNameList();
     }
