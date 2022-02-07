@@ -300,26 +300,20 @@
         ifnull(abs(sum(distinct dh.discount_money)),0) as discountMoney,
         ifnull(abs(sum(distinct dh.discount_last_money)),0) as discountLastMoney,
         ifnull(abs(sum(distinct dh.other_money)),0) as otherMoney,
---         ifnull(abs(sum(di.stock_cost)),0) as stockCost,
+        ifnull(abs(sum(di.stock_cost)),0) as stockCost,
         ifnull(sum(distinct ah.change_amount),0) as changeAmount,
         ifnull(abs(sum(distinct dh.discount_last_money)),0) + ifnull(abs(sum(distinct dh.other_money)),0) as needInMoney,
         ifnull(abs(sum(distinct dh.discount_last_money)),0) + ifnull(abs(sum(distinct dh.other_money)),0) - ifnull(abs(sum(distinct ah.change_amount)),0) as periodDebt
         from jsh_depot_head dh
         left join jsh_supplier s on dh.organ_id=s.id and ifnull(s.delete_Flag,'0') !='1'
---         left join jsh_depot_item di on dh.Id = di.header_id and ifnull(di.delete_flag,'0') !='1'
+        left join jsh_depot_item di on dh.Id = di.header_id and ifnull(di.delete_flag,'0') !='1'
         left join jsh_account_head ah on ah.Id in (select header_id from jsh_account_item ai where ai.bill_id = dh.id and ifnull(ai.delete_flag,'0') !='1') and ifnull(ah.delete_flag,'0') !='1'
         where 1=1
         <if test="depotList.size()>0">
-            and dh.id in (
-                select header_id
-                from jsh_depot_item di
-                where
-                    ifnull(di.delete_flag,'0') !='1'
-                    and di.depot_id in
-                    <foreach collection="depotList" item="item" index="index" separator="," open="(" close=")">
-                        #{item}
-                    </foreach>
-            )
+            and di.depot_id in
+            <foreach collection="depotList" item="item" index="index" separator="," open="(" close=")">
+                #{item}
+            </foreach>
         </if>
         <if test="type != null">
             and dh.type=#{type}
