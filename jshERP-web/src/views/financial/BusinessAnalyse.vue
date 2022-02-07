@@ -80,6 +80,7 @@ export default {
       })
     },
     onChange: function (value, dateString) {
+      dateString = value.format('YYYY-MM')
       this.queryParam.endTime = dateString + '-' + this.getEndTime(new Date(value.format()))
       this.queryParam.beginTime = dateString + '-01'
     },
