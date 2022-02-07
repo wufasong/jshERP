@@ -55,7 +55,7 @@ export default {
   },
   data() {
     return {
-      monthFormat: 'YYYY-MM',
+      monthFormat: 'YYYY年MM月',
       currentMonth: moment().format('YYYY-MM'),
       queryParam: {
         beginTime: moment().format('YYYY-MM') + '-01',
