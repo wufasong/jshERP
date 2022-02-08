@@ -85,7 +85,7 @@ export default {
         returnPayment: 0,
         //采购付款
         purchasePayment: 0,
-        //其他收支
+        //其他收 支
         outherAmount: 0,
       },
       monthFormat: 'YYYY年MM月',
