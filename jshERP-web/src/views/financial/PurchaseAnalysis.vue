@@ -52,7 +52,7 @@ const columnsList = [
         dataIndex: 'changeAmount',
         key: 'changeAmount',
         scopedSlots: { customRender: 'changeAmount' },
-        width: '180px',
+        width: '350px',
       },
       { title: '优惠金额 ', dataIndex: 'discountMoney', key: 'discountMoney' },
       { title: '当期欠款', dataIndex: 'periodDebt', key: 'periodDebt' },
@@ -86,16 +86,24 @@ export default {
       if (this.dataSource.length == 1) {
         this.dataSource.push(JSON.parse(JSON.stringify(this.dataSource[0])))
         this.dataSource[1].organName = '小计'
+        this.$emit('updateTotalAnalyse', {
+          purchaseAccount: this.dataSource[0].totalPrice,
+          purchasePayment: this.dataSource[0].changeAmount,
+        })
         return this.dataSource
       }
       let obj = this.dataSource.reduce((pre, current) => {
         return {
-          totalPrice: pre.totalPrice + current.totalPrice,
-          changeAmount: pre.changeAmount + current.changeAmount,
-          discountMoney: pre.discountMoney + current.discountMoney,
-          periodDebt: pre.periodDebt + current.periodDebt,
-          totalDebt: pre.totalDebt + current.totalDebt,
+          totalPrice: (pre.totalPrice + current.totalPrice).toFixed(2),
+          changeAmount: (pre.changeAmount + current.changeAmount).toFixed(2),
+          discountMoney: (pre.discountMoney + current.discountMoney).toFixed(2),
+          periodDebt: (pre.periodDebt + current.periodDebt).toFixed(2),
+          totalDebt: (pre.totalDebt + current.totalDebt).toFixed(2),
         }
+      })
+      this.$emit('updateTotalAnalyse', {
+        purchaseAccount: obj.totalPrice,
+        purchasePayment: obj.changeAmount,
       })
       this.dataSource.push({
         organName: '小计',

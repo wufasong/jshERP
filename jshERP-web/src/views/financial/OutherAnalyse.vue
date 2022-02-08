@@ -51,7 +51,7 @@ export default {
       ipagination: {
         pageSize: 10000,
       },
-      dataSource: [{ szh: 1, hes: 1 }],
+      dataSource: [],
       url: {
         list: '/analyze/list',
       },
@@ -63,12 +63,19 @@ export default {
       if (this.dataSource.length == 1) {
         this.dataSource.push(JSON.parse(JSON.stringify(this.dataSource[0])))
         this.dataSource[1].itemName = '小计'
+        this.$emit('updateTotalAnalyse', {
+          outherAmount: this.dataSource[0].changeAmount,
+        })
         return this.dataSource
       }
       let obj = this.dataSource.reduce((pre, current) => {
         return {
           changeAmount: pre.changeAmount + current.changeAmount,
         }
+      })
+      this.$emit('updateTotalAnalyse', {
+        purchaseAccount: obj.totalPrice,
+        outherAmount: obj.changeAmount,
       })
       this.dataSource.push({
         itemName: '小计',

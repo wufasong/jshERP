@@ -24,15 +24,34 @@
           </a-row>
         </a-form>
       </div>
-      <SaleAnalyse @openBusinessModel="openBusinessModel" ref="SaleAnalyse" />
-      <PurchaseAnalysis @openBusinessModel="openBusinessModel" ref="PurchaseAnalysis" />
+      <SaleAnalyse @openBusinessModel="openBusinessModel" ref="SaleAnalyse" @updateTotalAnalyse="updateTotalAnalyse" />
+      <PurchaseAnalysis
+        @openBusinessModel="openBusinessModel"
+        ref="PurchaseAnalysis"
+        @updateTotalAnalyse="updateTotalAnalyse"
+      />
       <div class="bottom">
-        <OutherAnalyse @openBusinessModel="openBusinessModel" ref="OutherAnalyse" />
+        <OutherAnalyse
+          @openBusinessModel="openBusinessModel"
+          ref="OutherAnalyse"
+          @updateTotalAnalyse="updateTotalAnalyse"
+        />
         <div class="outher-total">
-          <p>当期毛利：1</p>
-          <p>毛利率：1</p>
-          <p>当期纯利：1</p>
-          <p>库存金额：！</p>
+          <p>当期毛利：{{ (totalAnalyse.saleAccount - totalAnalyse.purchaseAccount).toFixed(2) }}</p>
+          <p>
+            毛利率：{{
+              (
+                ((totalAnalyse.saleAccount - totalAnalyse.purchaseAccount) / totalAnalyse.purchaseAccount) *
+                100
+              ).toFixed(2)
+            }}%
+          </p>
+          <p>
+            当期纯利：{{
+              (totalAnalyse.returnPayment - totalAnalyse.purchasePayment + totalAnalyse.outherAmount).toFixed(2)
+            }}
+          </p>
+          <p>库存金额：{{ totalAnalyse.stockCost.toFixed(2) }}</p>
         </div>
       </div>
     </a-card>
@@ -55,6 +74,20 @@ export default {
   },
   data() {
     return {
+      totalAnalyse: {
+        //库存金额
+        stockCost: 0,
+        //销售金额
+        saleAccount: 0,
+        //采购金额
+        purchaseAccount: 0,
+        //销售回款
+        returnPayment: 0,
+        //采购付款
+        purchasePayment: 0,
+        //其他收支
+        outherAmount: 0,
+      },
       monthFormat: 'YYYY年MM月',
       currentMonth: moment().format('YYYY-MM'),
       queryParam: {
@@ -66,12 +99,16 @@ export default {
   created() {
     getCurrentStockCost({}).then((res) => {
       if (res && res.code === 200) {
-        console.log(res)
+        this.totalAnalyse.stockCost = res.data.stockCost
       }
     })
   },
   methods: {
     moment,
+    updateTotalAnalyse(obj) {
+      this.totalAnalyse = Object.assign(this.totalAnalyse, obj)
+      console.log(this.totalAnalyse)
+    },
     openBusinessModel(e, params) {
       this.$refs.BusinessModel.open(e, {
         beginTime: this.queryParam.beginTime,

@@ -12,9 +12,10 @@
       :scroll="scroll"
       :loading="loading"
     >
-      <span slot="discountLastMoney" slot-scope="text, record"
+      <span slot="discountLastMoney" slot-scope="text, record" v-if="record.clientName != '小计'"
         >{{ ((record.totalPrice - record.stockCost) / record.stockCost).toFixed(2) }}%</span
       >
+      <span slot="discountLastMoney" slot-scope="text" v-else></span>
       <a
         slot="totalPrice"
         slot-scope="text, record"
@@ -97,18 +98,26 @@ export default {
       if (this.dataSource.length == 1) {
         this.dataSource.push(JSON.parse(JSON.stringify(this.dataSource[0])))
         this.dataSource[1].clientName = '小计'
+        this.$emit('updateTotalAnalyse', {
+          saleAccount: this.dataSource[0].totalPrice,
+          returnPayment: this.dataSource[0].changeAmount,
+        })
         return this.dataSource
       }
       let obj = this.dataSource.reduce((pre, current) => {
         return {
-          totalPrice: pre.totalPrice + current.totalPrice,
-          changeAmount: pre.changeAmount + current.changeAmount,
-          discountMoney: pre.discountMoney + current.discountMoney,
-          periodDebt: pre.periodDebt + current.periodDebt,
-          totalDebt: pre.totalDebt + current.totalDebt,
-          discountLastMoney: pre.discountLastMoney + current.discountLastMoney,
-          stockCost: pre.stockCost + current.stockCost,
+          totalPrice: (pre.totalPrice + current.totalPrice).toFixed(2),
+          changeAmount: (pre.changeAmount + current.changeAmount).toFixed(2),
+          discountMoney: (pre.discountMoney + current.discountMoney).toFixed(2),
+          periodDebt: (pre.periodDebt + current.periodDebt).toFixed(2),
+          totalDebt: (pre.totalDebt + current.totalDebt).toFixed(2),
+          discountLastMoney: (pre.discountLastMoney + current.discountLastMoney).toFixed(2),
+          stockCost: (pre.stockCost + current.stockCost).toFixed(2),
         }
+      })
+      this.$emit('updateTotalAnalyse', {
+        saleAccount: obj.totalPrice,
+        returnPayment: obj.changeAmount,
       })
       this.dataSource.push({
         clientName: '小计',
