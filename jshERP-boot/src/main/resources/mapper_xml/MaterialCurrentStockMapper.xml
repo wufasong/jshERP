@@ -259,7 +259,7 @@
 
   <select id="getCurrentStockCost" resultType="java.math.BigDecimal">
     select
-    ifnull(abs(sum(current_cost)),0) as stockCost,
+    ifnull(abs(sum(current_cost)),0) as stockCost
     from jsh_material_current_stock
     where 1=1
     <if test="depotList.size()>0">
