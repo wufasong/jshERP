@@ -31,8 +31,8 @@ const columnsList = [
   {
     title: '其他收支分析',
     children: [
-      { title: '收支项目', dataIndex: 'itemName', key: 'itemName' },
-      { title: '金额', dataIndex: 'changeAmount', key: 'changeAmount', scopedSlots: { customRender: 'changeAmount' } },
+      { title: '收支项目', dataIndex: 'itemName', key: 'itemName', width: '220px' },
+      { title: '金额', dataIndex: 'changeAmount', key: 'changeAmount', scopedSlots: { customRender: 'changeAmount' }, width: '180px' },
     ],
   },
 ]
@@ -105,6 +105,6 @@ export default {
   margin-bottom: 30px;
 }
 .outher-analyse {
-  width: 500px;
+  width: 410px;
 }
 </style>

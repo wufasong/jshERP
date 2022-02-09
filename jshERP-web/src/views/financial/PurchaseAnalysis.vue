@@ -52,7 +52,7 @@ const columnsList = [
         dataIndex: 'changeAmount',
         key: 'changeAmount',
         scopedSlots: { customRender: 'changeAmount' },
-        width: '350px',
+        width: '360px',
       },
       { title: '优惠金额 ', dataIndex: 'discountMoney', key: 'discountMoney' },
       { title: '当期欠款', dataIndex: 'periodDebt', key: 'periodDebt' },

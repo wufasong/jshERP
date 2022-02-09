@@ -13,7 +13,7 @@
       :loading="loading"
     >
       <span slot="discountLastMoney" slot-scope="text, record" v-if="record.clientName != '小计'"
-        >{{ ((record.totalPrice - record.stockCost) / record.stockCost).toFixed(2) }}%</span
+        >{{ (((record.totalPrice - record.stockCost) / record.totalPrice) * 100).toFixed(2) }}%</span
       >
       <span slot="discountLastMoney" slot-scope="text" v-else></span>
       <a
@@ -63,6 +63,7 @@ const columnsList = [
         dataIndex: 'discountLastMoney',
         key: 'discountLastMoney',
         scopedSlots: { customRender: 'discountLastMoney' },
+        width: '180px',
       },
 
       { title: '优惠金额', dataIndex: 'discountMoney', key: 'discountMoney' },
