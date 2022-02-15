@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-card :bordered="false">
+    <a-card :bordered="false" class="simple-card">
       <!-- 搜索区域 -->
       <a-form layout="inline" @keyup.enter.native="searchQuery">
         <a-row :gutter="24">
@@ -56,11 +56,13 @@
         <span slot="changeAmount" slot-scope="text, record" v-else>{{ text }}</span>
       </a-table>
     </a-card>
+    <BusinessModel ref="BusinessModel" />
   </div>
 </template>
 <script>
 import { FinancialListMixin } from './mixins/FinancialListMixin'
 import { JeecgListMixin } from '@/mixins/JeecgListMixin'
+import BusinessModel from './modules/BusinessModel.vue'
 import moment from 'moment'
 const columnsList = [
   { title: '客户名称', dataIndex: 'clientName', key: 'clientName', width: '220px' },
@@ -111,6 +113,9 @@ export default {
       currentMonth: moment().format('YYYY-MM'),
     }
   },
+  components: {
+    BusinessModel,
+  },
   computed: {
     getDataSource() {
       if (!this.dataSource.length) return []
@@ -143,7 +148,9 @@ export default {
       this.loadData(1)
     },
     openBusinessModel(ind, record) {
-      this.$emit('openBusinessModel', ind, {
+      this.$refs.BusinessModel.open(ind, {
+        beginTime: this.queryParam.beginTime,
+        endTime: this.queryParam.endTime,
         organId: record.clientId,
       })
     },
@@ -165,11 +172,11 @@ export default {
   },
 }
 </script>
-<style>
+<style >
 .table {
   margin-bottom: 30px;
 }
-.ant-card {
+.simple-card {
   min-height: 600px;
 }
 </style>
