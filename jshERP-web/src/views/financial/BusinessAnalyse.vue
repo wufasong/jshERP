@@ -150,5 +150,10 @@ export default {
   margin-left: 50px;
   font-weight: bold;
 }
+@media screen and (max-width: 800px) {
+  .bottom {
+    flex-direction: column;
+  }
+}
 @import '~@assets/less/common.less';
 </style>

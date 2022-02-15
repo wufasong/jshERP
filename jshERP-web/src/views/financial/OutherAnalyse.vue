@@ -32,7 +32,13 @@ const columnsList = [
     title: '其他收支分析',
     children: [
       { title: '收支项目', dataIndex: 'itemName', key: 'itemName', width: '220px' },
-      { title: '金额', dataIndex: 'changeAmount', key: 'changeAmount', scopedSlots: { customRender: 'changeAmount' }, width: '180px' },
+      {
+        title: '金额',
+        dataIndex: 'changeAmount',
+        key: 'changeAmount',
+        scopedSlots: { customRender: 'changeAmount' },
+        width: '180px',
+      },
     ],
   },
 ]
@@ -65,6 +71,7 @@ export default {
         this.dataSource[1].itemName = '小计'
         this.$emit('updateTotalAnalyse', {
           outherAmount: this.dataSource[0].changeAmount,
+          purchaseAccount: this.dataSource[0].totalPrice,
         })
         return this.dataSource
       }
@@ -105,6 +112,14 @@ export default {
   margin-bottom: 30px;
 }
 .outher-analyse {
-  width: 410px;
+  width: 400px;
+}
+@media screen and (max-width: 800px) {
+  .outher-analyse {
+    width: auto;
+  }
+  .layout.mobile .ant-table-wrapper .ant-table-body {
+    min-width: 405px;
+  }
 }
 </style>
